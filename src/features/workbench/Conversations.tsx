@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MessageSquare, Send, X } from 'lucide-react';
 import { useFgdStore } from '@/stores/fgd-store';
 import { formatTime } from '@/lib/utils';
@@ -63,6 +63,13 @@ export function ConversationPopover({
   type: 'chat' | 'transcript';
   onClose: () => void;
 }) {
+  useEffect(() => {
+    const handle = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
+  }, [onClose]);
   const sendChat = useFgdStore((s) => s.sendChat);
   const [text, setText] = useState('');
   function submit(event: React.FormEvent) {

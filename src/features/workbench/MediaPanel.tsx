@@ -134,7 +134,8 @@ export function MediaPanel({
             <span className={styles.hostAvatar}>主</span>
             <div className={styles.videoTileLabel}>
               主持人
-              <Video size={13} />
+              {!session.hostMic && <MicOff size={13} />}
+              {session.hostCamera ? <Video size={13} /> : <VideoOff size={13} />}
             </div>
           </div>
         )}

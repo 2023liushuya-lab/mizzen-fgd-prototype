@@ -514,72 +514,46 @@
 }
 @media (max-width: 820px) {
   .workspace {
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
-    --header-height: 58px;
+    --header-height: 72px;
     --outline-width: 64px;
-    --right-width: 0px;
+    --right-width: 42px;
   }
-  .topbar .brand {
-    font-size: 18px;
+  .hasToolbar {
+    --footer-height: 98px;
   }
   .workspaceBody {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    min-height: calc(100dvh - 58px);
-    padding-bottom: 50px;
+    grid-template-columns: var(--outline-width) minmax(0, 1fr) 42px;
   }
   .main {
-    overflow: visible;
-    padding: 18px 14px 25px;
-    min-height: 330px;
+    padding: 16px 12px 70px;
   }
   .rightPanel {
-    width: 100%;
-    min-height: 360px;
-    border-left: 0;
-    border-top: 1px solid #dfded7;
-    height: 550px;
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(304px, calc(100vw - 64px));
+    z-index: 30;
+    border: 1px solid #dfded7;
+    background: #f1f0eb;
   }
   .closedRight .rightPanel {
-    min-height: 40px;
-    height: 40px;
+    position: static;
+    width: 42px;
+    z-index: 1;
   }
-  .expandRight {
-    padding: 9px;
-  }
-  .rightPanel .notesPanel {
-    min-height: 0;
-  }
-  .leftFooter {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: var(--footer-height);
-    height: 45px;
-  }
-  .hasToolbar .leftFooter {
-    bottom: 62px;
+  .rightActions {
+    flex-shrink: 0;
   }
   .returnCurrent {
     left: auto;
-    right: 15px;
-    bottom: calc(var(--footer-height) + 58px);
+    right: 58px;
+    bottom: calc(var(--footer-height) + 54px);
   }
-  .offlineCaptions {
-    right: 10px;
-    bottom: 6px;
-  }
-  .hasReview {
-    --review-height: 42px;
+  .respondentDetails {
+    grid-template-columns: 1fr;
   }
   .reviewBanner {
-    height: 42px;
-    flex-wrap: wrap;
-    gap: 3px;
-    padding: 5px 12px;
+    font-size: 10px;
+    gap: 6px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -662,4 +636,46 @@
   top: 0;
   z-index: 3;
   background: #f7f5ef;
+}
+
+@media (max-width: 820px) {
+  .workspace[data-role='host'][data-delivery='online'] .leftFooter {
+    left: 4px;
+    bottom: 53px;
+    height: 40px;
+    max-width: calc(100vw - 8px);
+  }
+  .workspace[data-role='host'][data-delivery='online'] .questionPager {
+    bottom: calc(var(--footer-height) + 8px);
+  }
+}
+.main {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 820px) {
+  .workspaceBody:not(.foldedLayout) > aside:first-child {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: min(280px, calc(100vw - 48px));
+    z-index: 31;
+    border-right: 1px solid #dfded7;
+  }
+}
+
+.workspaceBody > .main {
+  grid-column: 2;
+  grid-row: 1;
+}
+.workspaceBody > .rightPanel {
+  grid-column: 3;
+  grid-row: 1;
+}
+.workspaceBody > aside:first-child {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.workspace[data-delivery='offline'] .questionPager {
+  bottom: 56px;
 }

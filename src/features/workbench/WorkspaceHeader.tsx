@@ -87,118 +87,75 @@ export function WorkspaceHeader({
   }
   return (
     <header className={styles.topbar} data-role={role} data-delivery={session.delivery}>
-      <a
-        hidden={role === 'host' && session.delivery === 'online'}
-        className={styles.brand}
-        href="/"
-        aria-label="Mizzen工作空间"
-      >
-        mizzen
-      </a>
-      <span
-        className={styles.headerDivider}
-        hidden={role === 'host' && session.delivery === 'online'}
-      />
-      {session.delivery === 'online' ? (
-        <div className={styles.meetingWrap}>
-          <button
-            className={styles.meetingButton}
-            onClick={() => setInfo(!info)}
-            aria-expanded={info}
-          >
-            会议信息
-            <ChevronDown size={12} />
-          </button>
-          {info && (
-            <div className={styles.meetingInfo}>
-              <strong>{session.title}</strong>
-              <div>
-                <small>房间码</small>
-                <span>{session.roomCode}</span>
-                <button
-                  className="icon-button"
-                  aria-label="复制房间码"
-                  onClick={() => copy(session.roomCode, 'code')}
-                >
-                  {copied === 'code' ? <Check size={15} /> : <Copy size={15} />}
-                </button>
-              </div>
-              <div>
-                <small>受访者链接</small>
-                <input readOnly value={link} aria-label="受访者链接" />
-                <button
-                  className="icon-button"
-                  aria-label="复制受访者链接"
-                  onClick={() => copy(link, 'link')}
-                >
-                  {copied === 'link' ? <Check size={15} /> : <Copy size={15} />}
-                </button>
-              </div>
-              <div>
-                <small>当前状态</small>
-                <span className={styles.phaseTag}>{phase}</span>
-              </div>
-              {copied && !['code', 'link'].includes(copied) && (
-                <small role="status">{copied}</small>
-              )}
-            </div>
-          )}
-        </div>
-      ) : (
-        <strong className={styles.headerSessionTitle}>{session.title}</strong>
-      )}
-      {session.delivery === 'online' && role === 'host' && (
-        <strong className={styles.headerSessionTitle}>{session.title}</strong>
-      )}
-      <span className={`${styles.phaseTag} ${session.phase === 'live' ? styles.phaseLive : ''}`}>
-        {phase}
-      </span>
-      <div className={styles.headerProgress}>
-        <span>
-          {questions} / {session.questions.length}
-        </span>
-        <i>
-          <b
-            style={{
-              width: `${(questions / Math.max(1, session.questions.length)) * 100}%`,
-            }}
-          />
-        </i>
-      </div>
-      {session.delivery === 'online' && (
-        <>
-          <button
-            className={styles.languageButton}
-            aria-pressed={translated}
-            onClick={() => setTranslated(!translated)}
-            title="原文 / 双语对照"
-          >
-            <Globe size={13} />
-            {translated ? '中英对照' : '原文'}
-          </button>
-          <div className={styles.viewSwitch} role="group" aria-label="工作台视图">
+      <div className={styles.headerIdentity}>
+        <a
+          hidden={role === 'host' && session.delivery === 'online'}
+          className={styles.brand}
+          href="/"
+          aria-label="Mizzen工作空间"
+        >
+          mizzen
+        </a>
+        <span
+          className={styles.headerDivider}
+          hidden={role === 'host' && session.delivery === 'online'}
+        />
+        {session.delivery === 'online' ? (
+          <div className={styles.meetingWrap}>
             <button
-              aria-label="题目视图"
-              aria-pressed={view === 'question'}
-              className={view === 'question' ? styles.activeView : ''}
-              onClick={() => onView('question')}
+              className={styles.meetingButton}
+              onClick={() => setInfo(!info)}
+              aria-expanded={info}
             >
-              <Monitor size={15} />
-              <span>题目视图</span>
+              会议信息
+              <ChevronDown size={12} />
             </button>
-            <button
-              aria-label={role === 'host' ? '视频视图' : '受访者视图'}
-              aria-pressed={view === 'respondents'}
-              className={view === 'respondents' ? styles.activeView : ''}
-              onClick={() => onView('respondents')}
-            >
-              <Grid2X2 size={15} />
-              <span>{role === 'host' ? '视频视图' : '受访者视图'}</span>
-            </button>
+            {info && (
+              <div className={styles.meetingInfo}>
+                <strong>{session.title}</strong>
+                <div>
+                  <small>房间码</small>
+                  <span>{session.roomCode}</span>
+                  <button
+                    className="icon-button"
+                    aria-label="复制房间码"
+                    onClick={() => copy(session.roomCode, 'code')}
+                  >
+                    {copied === 'code' ? <Check size={15} /> : <Copy size={15} />}
+                  </button>
+                </div>
+                <div>
+                  <small>受访者链接</small>
+                  <input readOnly value={link} aria-label="受访者链接" />
+                  <button
+                    className="icon-button"
+                    aria-label="复制受访者链接"
+                    onClick={() => copy(link, 'link')}
+                  >
+                    {copied === 'link' ? <Check size={15} /> : <Copy size={15} />}
+                  </button>
+                </div>
+                <div>
+                  <small>当前状态</small>
+                  <span className={styles.phaseTag}>{phase}</span>
+                </div>
+                {copied && !['code', 'link'].includes(copied) && (
+                  <small role="status">{copied}</small>
+                )}
+              </div>
+            )}
           </div>
-        </>
-      )}
-      <div className={styles.headerActions}>
+        ) : (
+          <strong className={styles.headerSessionTitle}>{session.title}</strong>
+        )}
+        {session.delivery === 'online' && role === 'host' && (
+          <strong className={styles.headerSessionTitle}>{session.title}</strong>
+        )}
+      </div>
+      <div className={styles.headerStatus}>
+        <span className={`${styles.phaseTag} ${session.phase === 'live' ? styles.phaseLive : ''}`}>
+          {phase}
+        </span>
         {session.delivery === 'online' && (
           <span className={styles.recording}>
             {session.phase === 'ended'
@@ -210,51 +167,100 @@ export function WorkspaceHeader({
         )}
         <Signal size={17} className={styles.network} aria-label="网络连接正常" role="img" />
         <time>{formatTime(elapsed)}</time>
-        {role === 'host' ? (
-          <>
-            <button
-              className={styles.inboxButton}
-              aria-label={`旁听小纸条，${session.notes.filter((n) => n.status === 'pending').length}条待处理`}
-              onClick={onInbox}
-            >
-              <Mail size={16} />
-              <span>小纸条</span>
-              {session.notes.some((n) => n.status === 'pending') && (
-                <b>{session.notes.filter((n) => n.status === 'pending').length}</b>
-              )}
-            </button>
-            <button
-              className="icon-button"
-              title="全屏专注"
-              aria-label="全屏专注"
-              onClick={() => {
-                if (document.fullscreenElement) void document.exitFullscreen();
-                else void document.documentElement.requestFullscreen().catch(() => {});
+      </div>
+      <div className={styles.headerTools}>
+        <div className={styles.headerProgress}>
+          <span>
+            {questions} / {session.questions.length}
+          </span>
+          <i>
+            <b
+              style={{
+                width: `${(questions / Math.max(1, session.questions.length)) * 100}%`,
               }}
-            >
-              <Maximize2 size={17} />
-            </button>
-            {session.delivery === 'offline' && session.phase !== 'ended' && (
-              <button className={styles.endText} onClick={onEnd}>
-                结束场次
-              </button>
-            )}
-          </>
-        ) : (
+            />
+          </i>
+        </div>
+        {session.delivery === 'online' && (
           <>
             <button
-              className={`icon-button ${listening ? styles.listening : styles.notListening}`}
-              aria-label={listening ? '关闭声音' : '开启声音'}
-              aria-pressed={listening}
-              onClick={onListening}
+              className={styles.languageButton}
+              aria-pressed={translated}
+              onClick={() => setTranslated(!translated)}
+              title="原文 / 双语对照"
             >
-              {listening ? <Volume2 size={17} /> : <VolumeX size={17} />}
+              <Globe size={13} />
+              {translated ? '中英对照' : '原文'}
             </button>
-            <button className={styles.leaveButton} onClick={onLeave}>
-              离开
-            </button>
+            <div className={styles.viewSwitch} role="group" aria-label="工作台视图">
+              <button
+                aria-label="题目视图"
+                aria-pressed={view === 'question'}
+                className={view === 'question' ? styles.activeView : ''}
+                onClick={() => onView('question')}
+              >
+                <Monitor size={15} />
+                <span>题目视图</span>
+              </button>
+              <button
+                aria-label={role === 'host' ? '视频视图' : '受访者视图'}
+                aria-pressed={view === 'respondents'}
+                className={view === 'respondents' ? styles.activeView : ''}
+                onClick={() => onView('respondents')}
+              >
+                <Grid2X2 size={15} />
+                <span>{role === 'host' ? '视频视图' : '受访者视图'}</span>
+              </button>
+            </div>
           </>
         )}
+        <div className={styles.headerActions}>
+          {role === 'host' ? (
+            <>
+              <button
+                className={styles.inboxButton}
+                aria-label={`旁听小纸条，${session.notes.filter((n) => n.status === 'pending').length}条待处理`}
+                onClick={onInbox}
+              >
+                <Mail size={16} />
+                <span>小纸条</span>
+                {session.notes.some((n) => n.status === 'pending') && (
+                  <b>{session.notes.filter((n) => n.status === 'pending').length}</b>
+                )}
+              </button>
+              <button
+                className="icon-button"
+                title="全屏专注"
+                aria-label="全屏专注"
+                onClick={() => {
+                  if (document.fullscreenElement) void document.exitFullscreen();
+                  else void document.documentElement.requestFullscreen().catch(() => {});
+                }}
+              >
+                <Maximize2 size={17} />
+              </button>
+              {session.delivery === 'offline' && session.phase !== 'ended' && (
+                <button className={styles.endText} onClick={onEnd}>
+                  结束场次
+                </button>
+              )}
+            </>
+          ) : (
+            <>
+              <button
+                className={`icon-button ${listening ? styles.listening : styles.notListening}`}
+                aria-label={listening ? '关闭声音' : '开启声音'}
+                aria-pressed={listening}
+                onClick={onListening}
+              >
+                {listening ? <Volume2 size={17} /> : <VolumeX size={17} />}
+              </button>
+              <button className={styles.leaveButton} onClick={onLeave}>
+                离开
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

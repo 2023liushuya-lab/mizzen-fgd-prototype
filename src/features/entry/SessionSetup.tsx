@@ -57,13 +57,6 @@ export default function Setup({ project, session }: { project: Project; session:
             <Check size={14} />
             已保存
           </span>
-          <Button variant="outline" size="sm" asChild>
-            <a href={sessionLink('observer', session)} target="_blank" rel="noopener noreferrer">
-              <Headphones size={15} />
-              旁听室
-              <ExternalLink size={13} />
-            </a>
-          </Button>
         </div>
       </header>
       <main className={styles.setupMain}>

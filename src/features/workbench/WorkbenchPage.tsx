@@ -5,20 +5,21 @@ import { ArrowUp, Mail } from 'lucide-react';
 import { useFgdStore } from '@/stores/fgd-store';
 import { QuestionWorkspace } from '@/features/questions';
 import { raisedPeople } from './HandQueue';
-import { uid } from '@/lib/utils';
 import type { Identity, Participant } from '@/types/fgd';
 import { OutlinePanel } from './OutlinePanel';
 import { ProfileModal } from './Profile';
-import { HostInbox } from './PaperNotes';
 import { WorkspaceHeader } from './WorkspaceHeader';
-import { openedQuestions, topicDirections } from './helpers';
-import { ObserverIdentityGate, SessionGate, WaitingRoom } from './WorkbenchGate';
+import { topicDirections } from './helpers';
+import { SessionGate } from './WorkbenchGate';
 import { RespondentView } from './RespondentView';
 import { WorkbenchSidePanel } from './WorkbenchSidePanel';
 import { ParticipantFooter, HostMeetingControls } from './WorkbenchFooter';
+import { ConversationPopover } from './Conversations';
 import { SessionDialogs } from './SessionDialogs';
 import { exportObserverNotes } from './export-observer-notes';
 import styles from './WorkbenchPage.module.css';
+
+const DEFAULT_OBSERVER_IDENTITY: Identity = { id: 'observer-default', name: '旁听席' };
 
 export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
   const params = useSearchParams();
@@ -40,13 +41,11 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
   const [rightClosed, setRightClosed] = useState(false);
   const [view, setView] = useState<'question' | 'respondents'>('question');
   const [profile, setProfile] = useState<Participant | null>(null);
-  const [inbox, setInbox] = useState(false);
   const [endModal, setEndModal] = useState(false);
   const [priorModal, setPriorModal] = useState(false);
   const [conversation, setConversation] = useState<'chat' | 'transcript' | null>(null);
-  const [listening, setListening] = useState(true);
   const [error, setError] = useState('');
-  const [identity, setIdentity] = useState<Identity | null>(null);
+  const [identity, setIdentity] = useState<Identity | null>(DEFAULT_OBSERVER_IDENTITY);
   const [identityLoaded, setIdentityLoaded] = useState(false);
   const [showReturn, setShowReturn] = useState(false);
   const [bilingual, setBilingual] = useState(false);
@@ -73,7 +72,6 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
     setSelectedId(null);
     setFollow(true);
     setView('question');
-    setInbox(false);
     setEndModal(false);
     setPriorModal(false);
     setProfile(null);
@@ -82,9 +80,14 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
     if (role === 'observer') {
       try {
         const stored = JSON.parse(localStorage.getItem(identityKey) || 'null');
-        setIdentity(stored?.id && stored?.name ? stored : null);
+        if (stored?.id && stored?.name) {
+          setIdentity(stored);
+        } else {
+          localStorage.setItem(identityKey, JSON.stringify(DEFAULT_OBSERVER_IDENTITY));
+          setIdentity(DEFAULT_OBSERVER_IDENTITY);
+        }
       } catch {
-        setIdentity(null);
+        setIdentity(DEFAULT_OBSERVER_IDENTITY);
       }
     }
     setIdentityLoaded(true);
@@ -92,28 +95,15 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
   useEffect(() => {
     if (follow && session?.currentQuestionId) setSelectedId(session.currentQuestionId);
   }, [follow, session?.currentQuestionId]);
-  useEffect(() => {
-    if (session?.delivery === 'offline') setView('question');
-  }, [session?.delivery]);
 
   if (!ready || !identityLoaded) return <SessionGate state="loading" />;
   if (!session) return <SessionGate state="missing" />;
   const readonly = role === 'observer';
   const online = session.delivery === 'online';
-  if (readonly && params.get('token') !== session.observerToken)
+  if (readonly && params.get('token') && params.get('token') !== session.observerToken)
     return <SessionGate state="expired" />;
-  if (readonly && !identity)
-    return (
-      <ObserverIdentityGate
-        session={session}
-        onJoin={(name) => {
-          const next = { id: uid('observer'), name };
-          localStorage.setItem(identityKey, JSON.stringify(next));
-          setIdentity(next);
-        }}
-      />
-    );
-  const visibleQuestions = readonly ? openedQuestions(session) : session.questions;
+  const activeIdentity = identity || DEFAULT_OBSERVER_IDENTITY;
+  const visibleQuestions = session.questions;
   const question =
     visibleQuestions.find((q) => q.id === selectedId) ||
     visibleQuestions.find((q) => q.id === session.currentQuestionId) ||
@@ -121,7 +111,7 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
   const directions = topicDirections(session, question);
 
   function select(id: string) {
-    if (!session || (readonly && !session.runs[id])) return;
+    if (!session) return;
     setSelectedId(id);
     setFollow(id === session.currentQuestionId);
     setView('question');
@@ -153,20 +143,11 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
       role={role}
       now={now}
       view={view}
-      onView={(value) => setView(online ? value : 'question')}
+      onView={setView}
       onEnd={() => setEndModal(true)}
-      onInbox={() => setInbox(!inbox)}
-      onLeave={() => {
-        localStorage.removeItem(identityKey);
-        setIdentity(null);
-      }}
-      listening={listening}
-      onListening={() => setListening(!listening)}
       onTranslationChange={setBilingual}
     />
   );
-  if (readonly && session.phase === 'pending')
-    return <WaitingRoom session={session} header={header} />;
 
   return (
     <div
@@ -178,10 +159,10 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
       {header}
       {session.phase === 'ended' && readonly && (
         <div className={styles.reviewBanner}>
-          <span>访谈已结束 · 只读复盘模式</span>
-          <button onClick={() => identity && exportObserverNotes(session, identity)}>
+          <span>访谈已结束 · 只读复盘模式（完整复盘可前往项目「记录」页）</span>
+          <button onClick={() => exportObserverNotes(session, activeIdentity)}>
             <Mail size={13} />
-            导出我的小纸条与笔记
+            导出我的小纸条
           </button>
         </div>
       )}
@@ -215,7 +196,27 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
               </button>
             </div>
           )}
-          {view === 'respondents' && online ? (
+          {readonly && session.phase === 'pending' && view === 'question' && (
+            <div className={styles.browseBanner}>
+              <span>
+                💡 场次待开场 · 你可以提前浏览左侧全部大纲题目或受访者背景，或提前给主持人留小纸条
+              </span>
+            </div>
+          )}
+          {readonly &&
+            session.phase === 'live' &&
+            !follow &&
+            session.currentQuestionId &&
+            question?.id !== session.currentQuestionId &&
+            view === 'question' && (
+              <div className={styles.browseBanner}>
+                <span>正在自由浏览大纲题目</span>
+                <button type="button" onClick={backToCurrent}>
+                  ↑ 回到主持人当前题
+                </button>
+              </div>
+            )}
+          {view === 'respondents' ? (
             <RespondentView
               session={session}
               readonly={readonly}
@@ -234,11 +235,7 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
           ) : (
             <div className={styles.noQuestion}>
               <h2>等待主持人开始题目</h2>
-              <p>
-                {online
-                  ? '可以查看受访者，或向主持人发小纸条。'
-                  : '可以查看受访者背景，或向主持人发小纸条。'}
-              </p>
+              <p>可在左侧大纲提前浏览本场全部题目，或在右侧向主持人递小纸条。</p>
             </div>
           )}
           {(showReturn ||
@@ -262,7 +259,7 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
           handQueueOpen={handQueueOpen}
           onHandQueueClose={() => setHandQueueOpen(false)}
           onProfile={setProfile}
-          identity={identity}
+          identity={activeIdentity}
           selectedId={question?.id || null}
           onQuestion={select}
           now={now}
@@ -274,6 +271,8 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
           question={question}
           visibleQuestions={visibleQuestions}
           onQuestion={select}
+          conversation={conversation}
+          onConversation={setConversation}
         />
       </div>
       {!readonly && (
@@ -288,12 +287,11 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
           }}
         />
       )}
-      {!readonly && (
-        <HostInbox
+      {readonly && conversation === 'transcript' && (
+        <ConversationPopover
           session={session}
-          open={inbox}
-          onClose={() => setInbox(false)}
-          onQuestion={select}
+          type="transcript"
+          onClose={() => setConversation(null)}
         />
       )}
       <ProfileModal session={session} person={profile} onClose={() => setProfile(null)} />

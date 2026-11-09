@@ -14,6 +14,8 @@ export function ParticipantFooter({
   question,
   visibleQuestions,
   onQuestion,
+  conversation,
+  onConversation,
 }: {
   session: Session;
   readonly: boolean;
@@ -21,29 +23,46 @@ export function ParticipantFooter({
   question?: Question;
   visibleQuestions: Question[];
   onQuestion: (id: string) => void;
+  conversation?: 'chat' | 'transcript' | null;
+  onConversation?: (type: 'chat' | 'transcript' | null) => void;
 }) {
   const index = question ? visibleQuestions.indexOf(question) : -1;
   return (
     <div className={styles.leftFooter}>
       <ParticipantStrip session={session} readonly={readonly} onProfile={onProfile} />
-      <div className={styles.questionPager}>
+      {session.delivery === 'online' && (
+        <div className={styles.questionPager} role="group" aria-label="切换浏览题目">
+          <button
+            className="icon-button"
+            aria-label="上一题"
+            title="上一题"
+            disabled={index < 1}
+            onClick={() => question && onQuestion(visibleQuestions[index - 1].id)}
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <button
+            className="icon-button"
+            aria-label="下一题"
+            title="下一题"
+            disabled={!question || index >= visibleQuestions.length - 1}
+            onClick={() => question && onQuestion(visibleQuestions[index + 1].id)}
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      )}
+      {readonly && onConversation && (
         <button
-          className="icon-button"
-          aria-label="上一题"
-          disabled={index < 1}
-          onClick={() => question && onQuestion(visibleQuestions[index - 1].id)}
+          type="button"
+          className={styles.observerCaptionBtn}
+          aria-expanded={conversation === 'transcript'}
+          onClick={() => onConversation(conversation === 'transcript' ? null : 'transcript')}
         >
-          <ChevronLeft size={23} />
+          <Captions size={16} />
+          <span>字幕</span>
         </button>
-        <button
-          className="icon-button"
-          aria-label="下一题"
-          disabled={!question || index >= visibleQuestions.length - 1}
-          onClick={() => question && onQuestion(visibleQuestions[index + 1].id)}
-        >
-          <ChevronRight size={23} />
-        </button>
-      </div>
+      )}
     </div>
   );
 }

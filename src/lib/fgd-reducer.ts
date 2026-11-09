@@ -200,7 +200,7 @@ export function applyCommand(current: FgdData, command: Command): FgdData {
       break;
     }
     case 'send-note': {
-      if (s.phase !== 'live') break;
+      if (s.phase === 'ended') break;
       const existing = s.notes.find((n) => n.id === command.note.id);
       if (existing) {
         if (existing.status === 'failed') Object.assign(existing, command.note);

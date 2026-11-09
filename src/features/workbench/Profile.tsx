@@ -85,6 +85,10 @@ export function ParticipantStrip({
   const [removePerson, setRemovePerson] = useState<Participant | null>(null);
   const [feedback, setFeedback] = useState('');
   const people = session.participants.filter((p) => !p.removed);
+  const onlineCount =
+    session.delivery === 'offline'
+      ? people.length
+      : people.filter((p) => p.online).length || people.length;
   function media(person: Participant, kind: 'mic' | 'camera') {
     const enabled = !person[kind];
     request(session.id, person.id, kind, enabled);
@@ -95,64 +99,88 @@ export function ParticipantStrip({
   }
   return (
     <div className={styles.peopleStrip} aria-label="受访者背景速览">
-      <span className={styles.peopleCount}>{people.length}</span>
-      {people.map((person) => (
-        <div key={person.id} className={styles.personHover}>
-          <button
-            className={styles.personAvatarButton}
-            aria-label={`查看${person.name}的背景信息`}
-            onClick={() => onProfile(person)}
-          >
-            <Avatar person={person} />
-            <i
-              className={
-                person.online || session.delivery === 'offline'
-                  ? styles.onlineDot
-                  : styles.offlineDot
-              }
-            />
-          </button>
-          <div
-            className={styles.personHoverCard}
-            role="group"
-            aria-label={`${person.name}资料与操作`}
-          >
-            <div className={styles.profileHeading}>
-              <Avatar person={person} size={34} />
-              <div>
-                <strong>{person.name}</strong>
-                <small>
-                  {session.delivery === 'offline' ? '现场' : person.online ? '在线' : '未到场'}
-                </small>
+      <span className={styles.presenceLabel}>在场 {onlineCount} 人</span>
+      {people.map((person, index) => {
+        const seatIdx = session.seatOrder.indexOf(person.id);
+        const seatNo = (seatIdx >= 0 ? seatIdx : index) + 1;
+        const isOnline = person.online || session.delivery === 'offline';
+        return (
+          <div key={person.id} className={styles.personHover}>
+            <button
+              className={styles.personAvatarButton}
+              aria-label={`查看${person.name}的背景信息`}
+              onClick={() => onProfile(person)}
+            >
+              <span className={styles.presenceAvatar}>{person.name.slice(0, 1)}</span>
+              <i className={isOnline ? styles.onlineDot : styles.offlineDot} />
+            </button>
+            <div
+              className={styles.personHoverCard}
+              role="group"
+              aria-label={`${person.name}资料与操作`}
+            >
+              <div className={styles.participantCardHead}>
+                <span className={styles.profileAvatar}>{person.name.slice(0, 1)}</span>
+                <div>
+                  <strong>{person.name}</strong>
+                  <small className={styles.seatMeta}>
+                    P{String(seatNo).padStart(2, '0')} · 座位 {seatNo}
+                  </small>
+                </div>
+                <span className={styles.statusPill}>
+                  <i className={isOnline ? styles.statusDotOnline : styles.statusDotOffline} />
+                  {session.delivery === 'offline'
+                    ? '现场已入座'
+                    : person.online
+                      ? '在线'
+                      : '未到场'}
+                </span>
               </div>
+              <div className={styles.participantTags}>
+                {person.skin && <span className={styles.infoTag}>{person.skin}</span>}
+                {person.age && <span className={styles.infoTag}>{person.age}</span>}
+              </div>
+              <dl className={styles.participantFields}>
+                <div>
+                  <dt>年龄</dt>
+                  <dd>{person.age || '未填写'}</dd>
+                </div>
+                <div>
+                  <dt>肤质</dt>
+                  <dd>{person.skin || '未填写'}</dd>
+                </div>
+                <div className={styles.fullRow}>
+                  <dt>备注</dt>
+                  <dd>{person.notes || backgroundOf(person)}</dd>
+                </div>
+              </dl>
+              {!readonly && session.delivery === 'online' && session.phase !== 'ended' && (
+                <div className={styles.personActions}>
+                  <button
+                    className={`icon-button ${!person.mic ? styles.mediaOff : ''}`}
+                    aria-label={`${person.mic ? '请求静音' : '请求开麦'}：${person.name}`}
+                    title={person.mic ? '请求静音' : '请求开麦'}
+                    onClick={() => media(person, 'mic')}
+                  >
+                    {person.mic ? <Mic size={18} /> : <MicOff size={18} />}
+                  </button>
+                  <button
+                    className={`icon-button ${!person.camera ? styles.mediaOff : ''}`}
+                    aria-label={`${person.camera ? '请求关闭视频' : '请求开启视频'}：${person.name}`}
+                    title={person.camera ? '请求关闭视频' : '请求开启视频'}
+                    onClick={() => media(person, 'camera')}
+                  >
+                    {person.camera ? <Video size={18} /> : <VideoOff size={18} />}
+                  </button>
+                  <button className={styles.removeButton} onClick={() => setRemovePerson(person)}>
+                    移除
+                  </button>
+                </div>
+              )}
             </div>
-            <p>{backgroundOf(person)}</p>
-            {!readonly && session.delivery === 'online' && session.phase !== 'ended' && (
-              <div className={styles.personActions}>
-                <button
-                  className={`icon-button ${!person.mic ? styles.mediaOff : ''}`}
-                  aria-label={`${person.mic ? '请求静音' : '请求开麦'}：${person.name}`}
-                  title={person.mic ? '请求静音' : '请求开麦'}
-                  onClick={() => media(person, 'mic')}
-                >
-                  {person.mic ? <Mic size={18} /> : <MicOff size={18} />}
-                </button>
-                <button
-                  className={`icon-button ${!person.camera ? styles.mediaOff : ''}`}
-                  aria-label={`${person.camera ? '请求关闭视频' : '请求开启视频'}：${person.name}`}
-                  title={person.camera ? '请求关闭视频' : '请求开启视频'}
-                  onClick={() => media(person, 'camera')}
-                >
-                  {person.camera ? <Video size={18} /> : <VideoOff size={18} />}
-                </button>
-                <button className={styles.removeButton} onClick={() => setRemovePerson(person)}>
-                  移除
-                </button>
-              </div>
-            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
       {feedback && (
         <span role="status" className={styles.floatingFeedback}>
           {feedback}

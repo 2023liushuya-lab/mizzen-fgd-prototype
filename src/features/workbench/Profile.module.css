@@ -11,15 +11,17 @@
 .peopleStrip {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: 6px;
+  padding: 6px 12px;
   min-width: 0;
   position: relative;
 }
-.peopleCount {
-  font-size: 10px;
-  color: #879198;
-  padding-right: 3px;
+.presenceLabel {
+  font-size: 12px;
+  color: #66706d;
+  font-weight: 600;
+  margin-right: 2px;
+  white-space: nowrap;
 }
 .personHover {
   position: relative;
@@ -27,37 +29,60 @@
 .personAvatarButton {
   border: 0;
   background: transparent;
-  padding: 0;
+  padding: 2px;
   position: relative;
-  display: flex;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
+}
+.presenceAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  background: #fffdfa;
+  border: 1.5px solid #d8c08f;
+  color: #0b3158;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  transition:
+    transform 0.14s,
+    border-color 0.14s;
+}
+.personAvatarButton:hover .presenceAvatar,
+.personAvatarButton:focus-visible .presenceAvatar {
+  transform: translateY(-1px);
+  border-color: #153960;
 }
 .onlineDot,
 .offlineDot {
   position: absolute;
-  right: -1px;
-  top: -1px;
+  right: 2px;
+  top: 0;
   width: 7px;
   height: 7px;
-  border: 2px solid #f7f5ef;
+  border: 1.5px solid #efeee8;
   border-radius: 50%;
-  background: #368070;
+  background: #247457;
 }
 .offlineDot {
-  background: #c2c5bf;
+  background: #949994;
 }
 .personHoverCard {
   display: none;
   position: absolute;
-  bottom: 34px;
-  left: -8px;
-  width: 260px;
-  padding: 15px;
-  background: #fffefa;
-  border: 1px solid #dfded7;
+  bottom: 38px;
+  left: -4px;
+  width: 284px;
+  padding: 12px 13px;
+  background: #ffffff;
+  border: 1px solid #dfddd4;
   border-radius: 12px;
-  color: #52606d;
-  z-index: 30;
+  color: #1f2826;
+  box-shadow: 0 16px 36px rgba(24, 32, 38, 0.14);
+  z-index: 40;
 }
 .personHoverCard::after {
   content: '';
@@ -70,6 +95,97 @@
 .personHover:hover .personHoverCard,
 .personHover:focus-within .personHoverCard {
   display: block;
+}
+.participantCardHead {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 9px;
+  align-items: center;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #eceae2;
+}
+.profileAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #edf3fa;
+  color: #153960;
+  border: 1px solid #cddbef;
+  font-weight: 700;
+  font-size: 14px;
+}
+.participantCardHead strong {
+  display: block;
+  font-size: 13px;
+  color: #1f2826;
+}
+.seatMeta {
+  display: block;
+  font-size: 11px;
+  color: #66706d;
+}
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: #ebf3ef;
+  color: #247457;
+}
+.statusDotOnline,
+.statusDotOffline {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #247457;
+}
+.statusDotOffline {
+  background: #949994;
+}
+.participantTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+.infoTag {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #f4f2eb;
+  border: 1px solid #e4e0d5;
+  color: #4f5856;
+}
+.participantFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+  margin: 9px 0 0;
+  padding-top: 8px;
+  border-top: 1px dashed #e6e3da;
+  font-size: 11px;
+}
+.participantFields > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+.participantFields dt {
+  color: #66706d;
+}
+.participantFields dd {
+  margin: 0;
+  font-weight: 600;
+  color: #1f2826;
+  text-align: right;
+}
+.fullRow {
+  grid-column: 1 / -1;
 }
 .profileHeading {
   display: flex;
@@ -87,17 +203,13 @@
   margin: 3px 0;
   display: block;
 }
-.personHoverCard > p {
-  font-size: 11px;
-  line-height: 1.8;
-  margin: 12px 0;
-}
 .personActions {
   display: flex;
   align-items: center;
   gap: 7px;
   border-top: 1px solid #ecebe4;
   padding-top: 9px;
+  margin-top: 9px;
 }
 .personActions button {
   transition:

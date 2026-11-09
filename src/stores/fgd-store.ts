@@ -151,9 +151,9 @@ export const useFgdStore = create<Store>((set, get) => {
     correctSpeaker(id, questionId, transcriptId, participantId) {
       safeCommit({ type: 'correct-speaker', id, questionId, transcriptId, participantId });
     },
-    sendNote(id, identity, text, questionId, retryId) {
+    sendNote(id, identity, text, questionId = null, retryId) {
       const s = session(id);
-      if (!s || s.phase !== 'live') return { ok: false, error: '当前无法发送小纸条' };
+      if (!s || s.phase === 'ended') return { ok: false, error: '当前无法发送小纸条' };
       if (!text.trim() || text.trim().length > 120)
         return { ok: false, error: '请填写 1–120 字的追问建议' };
       const success = s.notes

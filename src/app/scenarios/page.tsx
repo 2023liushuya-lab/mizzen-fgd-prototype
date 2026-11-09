@@ -40,6 +40,12 @@ export default function Scenarios() {
         api.startQuestion(id, s.questions[q].id);
         if (q !== 10) api.fillDemoAnswers(id, s.questions[q].id);
       }
+      api.sendNote(
+        id,
+        { id: 'observer-default', name: '旁听席' },
+        '追问一下林女士：换季停用面霜是因为泛红刺痛，还是单纯觉得闷痘？',
+        null,
+      );
       if (index === 5) api.endSession(id);
     }
     s = useFgdStore.getState().data.sessions.find((s) => s.id === id)!;

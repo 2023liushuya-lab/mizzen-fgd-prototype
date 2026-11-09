@@ -1,7 +1,5 @@
 'use client';
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, Maximize2, MicOff, Video, VideoOff, Hand } from 'lucide-react';
-import { Modal } from '@/components/ui/modal';
+import { Video, VideoOff, Hand } from 'lucide-react';
 import type { Participant, Session } from '@/types/fgd';
 import { Avatar } from './Profile';
 import styles from './MediaPanel.module.css';
@@ -42,15 +40,19 @@ function Panorama({ session }: { session: Session }) {
               <g key={p.id}>
                 <ellipse cx={x} cy={y + 53} rx="39" ry="44" fill={p.color} opacity=".75" />
                 <circle cx={x} cy={y} r="28" fill="#dac6b6" />
-                <text x={x} y={y + 103} textAnchor="middle" fontSize="14" fill="#52606d">
-                  {p.name}
-                </text>
               </g>
             );
           })}
-        <rect x="12" y="12" width="95" height="26" rx="5" fill="#002554" fillOpacity=".55" />
+        <g transform="translate(415, 392)">
+          <rect x="-18" y="-32" width="36" height="12" rx="6" fill="#52606d" />
+          <circle cx="0" cy="0" r="24" fill="#467d78" opacity=".85" />
+          <text x="0" y="5" textAnchor="middle" fontSize="13" fill="#fffefa" fontWeight="600">
+            主持人
+          </text>
+        </g>
+        <rect x="12" y="12" width="142" height="26" rx="5" fill="#002554" fillOpacity=".55" />
         <text x="24" y="30" fill="white" fontSize="12">
-          现场全景 · 示例
+          现场全景机位 · 实时画面
         </text>
       </svg>
     </div>
@@ -79,16 +81,7 @@ export function VideoTile({
       )}
       <div className={styles.videoTileLabel}>
         <span>{person.name}</span>
-        {person.online ? (
-          <>
-            <span title={person.mic ? '麦克风开启' : '麦克风关闭'}>
-              {!person.mic && <MicOff size={13} />}
-            </span>
-            {!person.camera && <VideoOff size={13} />}
-          </>
-        ) : (
-          <small>未到场</small>
-        )}
+        {!person.online && <small>未到场</small>}
       </div>
     </button>
   );
@@ -105,35 +98,29 @@ export function MediaPanel({
   large?: boolean;
   attendance?: 'arrived' | 'absent';
 }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [full, setFull] = useState(false);
   const offline = session.delivery === 'offline';
-  function mediaContent(fullscreen = false) {
+  function mediaContent() {
     if (session.phase === 'ended')
       return (
         <div className={styles.mediaEnded}>
           <VideoOff size={24} />
-          <p>访谈已结束</p>
-          <small>实时画面已关闭，题目与笔记可继续回看。</small>
+          <p>会中视频已结束</p>
+          <small>实时画面已关闭，题目、回答与分析仍可切换回「题目视图」完整回看。</small>
         </div>
       );
     if (offline)
       return (
-        <button
-          className={styles.panoramaButton}
-          aria-label="放大现场全景"
-          onClick={() => !fullscreen && setFull(true)}
-        >
+        <div className={styles.panoramaWrap}>
           <Panorama session={session} />
-        </button>
+        </div>
       );
     return (
-      <div className={`${styles.videoList} ${large || fullscreen ? styles.videoGrid : ''}`}>
+      <div className={`${styles.videoList} ${large ? styles.videoGrid : ''}`}>
         {attendance !== 'absent' && (
           <div className={styles.videoTile}>
             <span className={styles.hostAvatar}>主</span>
             <div className={styles.videoTileLabel}>
-              主持人
+              <span>主持人</span>
               <Video size={13} />
             </div>
           </div>
@@ -150,26 +137,7 @@ export function MediaPanel({
   }
   return (
     <section className={`${styles.mediaPanel} ${large ? styles.mediaPanelLarge : ''}`}>
-      <div className={styles.mediaHeader}>
-        <strong>{offline ? '现场画面' : '会议视频'}</strong>
-        <small>示例</small>
-        <div>
-          <button className="icon-button" onClick={() => setFull(true)} aria-label="放大画面">
-            <Maximize2 size={15} />
-          </button>
-          <button
-            className="icon-button"
-            onClick={() => setCollapsed(!collapsed)}
-            aria-label={collapsed ? '展开画面' : '收起画面'}
-          >
-            {collapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-          </button>
-        </div>
-      </div>
-      {!collapsed && mediaContent()}
-      <Modal open={full} onOpenChange={setFull} title={offline ? '现场全景' : '会议视频'} wide>
-        {mediaContent(true)}
-      </Modal>
+      {mediaContent()}
     </section>
   );
 }

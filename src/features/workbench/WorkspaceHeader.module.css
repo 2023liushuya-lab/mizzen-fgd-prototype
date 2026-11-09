@@ -79,6 +79,15 @@
   border-radius: 5px;
   color: #52606d;
 }
+.observerRolePill {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5b6670;
+  background: #ebe9e1;
+  border: 1px solid #dcd9cf;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
 .phaseTag {
   font-size: 10px;
   background: #eeede7;

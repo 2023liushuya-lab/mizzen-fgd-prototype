@@ -1,125 +1,214 @@
 .speakingCard {
   flex-shrink: 0;
-  border: 1px solid #e1d8c7;
-  border-radius: 12px;
-  background: #fbf9f3;
-  margin: 12px 14px;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 58%),
+    linear-gradient(145deg, #fbfaf5 0%, #f4f1e8 100%);
+  border: 1px solid #e3ddcf;
+  border-radius: 13px;
+  padding: 11px 12px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
 }
-.speakingHeading {
-  height: 39px;
-  width: 100%;
+.speakingCollapsed {
+  padding-bottom: 10px;
+}
+.speakingHead {
   display: flex;
-  gap: 9px;
   align-items: center;
-  padding: 8px 14px;
-  background: transparent;
+  justify-content: space-between;
+  gap: 8px;
+}
+.speakingHead h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #1f2826;
+}
+.speakingHead h2 small {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  background: #ece6d8;
+  color: #6f6658;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: help;
+}
+.speakingToggle {
+  min-height: 22px;
+  padding: 0 4px 0 0;
   border: 0;
-  color: #002554;
-  cursor: pointer;
-  text-align: left;
-}
-.speakingHeading strong {
+  background: transparent;
+  color: #66706d;
   font-size: 12px;
-  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
 }
-.speakingHeading small {
-  font-size: 9px;
-  color: #879198;
+.speakingToggle:hover {
+  color: #1f2826;
+}
+.compactSummary {
+  font-size: 11px;
+  color: #66706d;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1;
 }
-.speakingHeading > svg {
-  margin-left: auto;
+.speechPie {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 0 2px;
 }
-.seatChart {
+.seatPie {
   position: relative;
-  width: 280px;
-  max-width: 100%;
-  height: 228px;
-  margin: auto;
-}
-.seatChart > svg {
-  width: 100%;
-  height: 100%;
-}
-.seatChart path {
-  cursor: pointer;
-  transition: opacity 0.2s;
-  outline: none;
-}
-.seatChart path:focus {
-  filter: brightness(1.15);
-}
-.seat {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  transform: translate(-50%, -50%);
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  padding: 4px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.seat > span:last-child {
-  font-size: 10px;
-  color: #52606d;
-  white-space: nowrap;
-}
-.hostSeat {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  color: #8d9289;
-}
-.hostSeat > span {
-  border: 1px solid #c5c6ba;
-  border-radius: 50%;
-  width: 27px;
-  height: 27px;
+  width: min(100%, 248px);
+  aspect-ratio: 1;
+  margin: 2px auto 0;
   display: grid;
   place-items: center;
-  font-size: 11px;
 }
-.hostSeat small {
+.shareGraphic {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 8px 14px rgba(31, 41, 55, 0.06));
+}
+.seatRing {
+  fill: none;
+  stroke: #dcc9a1;
+  stroke-width: 1.2;
+  stroke-dasharray: 3 7;
+}
+.pieSlice {
+  cursor: pointer;
+  transition:
+    opacity 0.15s,
+    filter 0.15s;
+  stroke: #fbf9f3;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  outline: none;
+}
+.pieSlice:hover,
+.pieSlice:focus-visible,
+.sliceLit {
+  filter: brightness(1.06);
+}
+.sliceDim {
+  opacity: 0.42;
+}
+.pieLabel {
+  fill: #ffffff;
+  font-size: 12px;
+  font-weight: 650;
+  text-anchor: middle;
+  dominant-baseline: central;
+  paint-order: stroke;
+  stroke: rgba(20, 30, 45, 0.28);
+  stroke-width: 2px;
+  pointer-events: none;
+}
+.pieSeat {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  border-radius: 9px;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 650;
+  color: #2b312f;
+  cursor: pointer;
+  line-height: 1.15;
+  transition:
+    opacity 0.15s,
+    background 0.15s;
+}
+.pieSeat:hover,
+.pieSeat:focus-visible,
+.seatLit {
+  background: rgba(255, 253, 248, 0.86);
+}
+.seatDim {
+  opacity: 0.45;
+}
+.seatAvatar {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fffdfa;
+  border: 1.5px solid #d5be8f;
+  color: #264a72;
+  box-shadow: 0 3px 8px rgba(31, 40, 38, 0.08);
+}
+.seatAvatar svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.seatAvatar b {
+  position: absolute;
+  right: -3px;
+  bottom: -2px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 99px;
+  background: var(--seat-color, #234f7e);
+  color: #ffffff;
   font-size: 9px;
+  line-height: 14px;
+  text-align: center;
+  border: 1.5px solid #fbfaf5;
+}
+.hostPosition {
+  cursor: default;
+  color: #66706d;
+  font-weight: 600;
+  pointer-events: none;
+}
+.hostPosition .seatAvatar {
+  background: #f1ede2;
+  border-color: #d8d0be;
+  color: #6a655b;
+}
+.shareHoverDetail {
+  min-height: 17px;
+  font-size: 11px;
+  color: #66706d;
+  text-align: center;
 }
 .chartCaption {
   text-align: center;
-  font-size: 9px;
-  color: #939992;
-  margin: 3px 0 10px;
-}
-@media (max-width: 1060px) {
-  .seatChart {
-    height: 210px;
-  }
+  font-size: 11px;
+  color: #8a908a;
+  margin: 0;
 }
 @media (max-height: 750px) and (min-width: 821px) {
-  .speakingHeading {
-    height: 36px;
-  }
-  .seatChart {
-    height: 178px;
-    width: 232px;
-  }
-  .chartCaption {
-    margin-bottom: 6px;
+  .seatPie {
+    width: min(100%, 216px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .seat,
-  .personActions button {
+  .pieSeat,
+  .pieSlice {
     transition: none;
   }
 }

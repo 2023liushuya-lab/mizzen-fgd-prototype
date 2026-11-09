@@ -95,6 +95,7 @@ pnpm format
 ```bash
 npm install --global pnpm@10.19.0
 pnpm install --frozen-lockfile
+pnpm exec next typegen
 pnpm check
 pnpm build
 ```

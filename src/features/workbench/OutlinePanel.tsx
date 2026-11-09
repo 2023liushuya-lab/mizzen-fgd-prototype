@@ -24,9 +24,7 @@ export function OutlinePanel({
   now: number;
 }) {
   const move = useFgdStore((s) => s.moveQuestion);
-  const questions = readonly
-    ? session.questions.filter((q) => session.runs[q.id]?.startedAt)
-    : session.questions;
+  const questions = session.questions;
   function drop(event: React.DragEvent, sectionId: string, beforeId?: string) {
     event.preventDefault();
     event.stopPropagation();

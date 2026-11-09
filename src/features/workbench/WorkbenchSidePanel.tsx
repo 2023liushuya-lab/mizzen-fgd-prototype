@@ -1,13 +1,18 @@
 'use client';
-import { useState } from 'react';
-import { PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { MessageSquareQuote, PanelRightClose, PanelRightOpen, Check } from 'lucide-react';
 import type { Identity, Participant, Session } from '@/types/fgd';
+import { useFgdStore } from '@/stores/fgd-store';
 import { HandQueue } from './HandQueue';
 import { SpeakingShare } from './SpeakingShare';
 import { PaperNotes } from './PaperNotes';
-import { TranscriptList } from './Conversations';
-import { MediaPanel } from './MediaPanel';
 import styles from './WorkbenchPage.module.css';
+
+function formatNoteTime(ts: number) {
+  return new Date(ts).toLocaleTimeString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
 
 export function WorkbenchSidePanel({
   session,
@@ -17,8 +22,6 @@ export function WorkbenchSidePanel({
   directions,
   onProfile,
   identity,
-  selectedId,
-  onQuestion,
   now,
   handQueueOpen,
   onHandQueueClose,
@@ -36,7 +39,14 @@ export function WorkbenchSidePanel({
   handQueueOpen?: boolean;
   onHandQueueClose?: () => void;
 }) {
-  const [tab, setTab] = useState<'notes' | 'captions' | 'video'>('notes');
+  const handleNote = useFgdStore((s) => s.handleNote);
+  const hostNotes = !readonly
+    ? session.notes
+        .filter((n) => n.status !== 'failed')
+        .slice()
+        .sort((a, b) => b.createdAt - a.createdAt)
+    : [];
+
   return (
     <aside className={styles.rightPanel}>
       {closed ? (
@@ -50,7 +60,12 @@ export function WorkbenchSidePanel({
       ) : (
         <>
           <div className={styles.rightActions}>
-            <span>{readonly ? '旁听工作台' : '现场状态'}</span>
+            <span className={styles.stateTitle}>
+              <span className={styles.spark} aria-hidden="true">
+                ✦
+              </span>
+              <span>现场状态</span>
+            </span>
             <button
               className="icon-button"
               aria-label="收起右侧"
@@ -59,63 +74,66 @@ export function WorkbenchSidePanel({
               <PanelRightClose size={17} />
             </button>
           </div>
-          {!readonly && (
-            <HandQueue
-              session={session}
-              open={!!handQueueOpen}
-              onClose={() => onHandQueueClose?.()}
-            />
-          )}
-          <SpeakingShare session={session} readonly={readonly} onProfile={onProfile} />
-          {
+          <div className={styles.statePane}>
+            {!readonly && (
+              <HandQueue
+                session={session}
+                open={!!handQueueOpen}
+                onClose={() => onHandQueueClose?.()}
+              />
+            )}
+            <SpeakingShare session={session} readonly={readonly} onProfile={onProfile} />
             <section className={styles.topicDirections}>
-              <h3>✧ 话题追问</h3>
-              {!directions.length && <p className="muted">等待本题形成讨论。</p>}
-              {directions.map((text) => (
-                <p key={text}>{text}</p>
-              ))}
-            </section>
-          }
-          {readonly ? (
-            <>
-              <div className={styles.rightTabs}>
-                <button
-                  className={tab === 'notes' ? styles.activeTab : ''}
-                  onClick={() => setTab('notes')}
-                >
-                  小纸条{' '}
-                  <small>
-                    {session.notes.filter((note) => note.observerId === identity?.id).length || ''}
-                  </small>
-                </button>
-                <button
-                  className={tab === 'captions' ? styles.activeTab : ''}
-                  onClick={() => setTab('captions')}
-                >
-                  字幕
-                </button>
-                <button
-                  className={tab === 'video' ? styles.activeTab : ''}
-                  onClick={() => setTab('video')}
-                >
-                  {session.delivery === 'online' ? '视频' : '现场画面'}
-                </button>
+              <div className={styles.topicHead}>
+                <h3>话题追问</h3>
+                <small>
+                  {hostNotes.length + directions.length > 0
+                    ? `${hostNotes.length + directions.length} 条`
+                    : '实时生成'}
+                </small>
               </div>
-              {tab === 'notes' && identity ? (
-                <PaperNotes
-                  session={session}
-                  identity={identity}
-                  selectedId={selectedId}
-                  onQuestion={onQuestion}
-                  now={now}
-                />
-              ) : tab === 'captions' ? (
-                <TranscriptList session={session} readonly />
-              ) : (
-                <MediaPanel session={session} onProfile={onProfile} />
-              )}
-            </>
-          ) : null}
+              <div className={styles.topicList}>
+                {hostNotes.map((note) => (
+                  <div key={note.id} className={styles.observerNoteItem}>
+                    <div className={styles.observerNoteHead}>
+                      <span className={styles.observerNoteBadge}>
+                        <MessageSquareQuote size={12} />
+                        旁听小纸条
+                      </span>
+                      <time className={styles.observerNoteTime}>
+                        {formatNoteTime(note.createdAt)}
+                      </time>
+                      {note.status === 'handled' ? (
+                        <span className={styles.observerNoteHandled}>✓ 已处理</span>
+                      ) : (
+                        <button
+                          type="button"
+                          className={styles.observerNoteAction}
+                          onClick={() => handleNote(session.id, note.id)}
+                        >
+                          <Check size={11} />
+                          已读
+                        </button>
+                      )}
+                    </div>
+                    <p className={styles.observerNoteBody}>{note.text}</p>
+                  </div>
+                ))}
+                {directions.map((text) => (
+                  <div key={text} className={styles.topicQuestion}>
+                    {!readonly && <span className={styles.topicAiTag}>✧ AI</span>}
+                    <span>{text}</span>
+                  </div>
+                ))}
+                {!hostNotes.length && !directions.length && (
+                  <div className={`${styles.topicQuestion} muted`}>
+                    等待本轮讨论生成新的话题追问…
+                  </div>
+                )}
+              </div>
+            </section>
+            {readonly && identity && <PaperNotes session={session} identity={identity} now={now} />}
+          </div>
         </>
       )}
     </aside>

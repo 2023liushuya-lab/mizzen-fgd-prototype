@@ -1,0 +1,125 @@
+.speakingCard {
+  flex-shrink: 0;
+  border: 1px solid #e1d8c7;
+  border-radius: 12px;
+  background: #fbf9f3;
+  margin: 12px 14px;
+}
+.speakingHeading {
+  height: 39px;
+  width: 100%;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 8px 14px;
+  background: transparent;
+  border: 0;
+  color: #002554;
+  cursor: pointer;
+  text-align: left;
+}
+.speakingHeading strong {
+  font-size: 12px;
+  font-weight: 500;
+}
+.speakingHeading small {
+  font-size: 9px;
+  color: #879198;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.speakingHeading > svg {
+  margin-left: auto;
+}
+.seatChart {
+  position: relative;
+  width: 280px;
+  max-width: 100%;
+  height: 228px;
+  margin: auto;
+}
+.seatChart > svg {
+  width: 100%;
+  height: 100%;
+}
+.seatChart path {
+  cursor: pointer;
+  transition: opacity 0.2s;
+  outline: none;
+}
+.seatChart path:focus {
+  filter: brightness(1.15);
+}
+.seat {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transform: translate(-50%, -50%);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.seat > span:last-child {
+  font-size: 10px;
+  color: #52606d;
+  white-space: nowrap;
+}
+.hostSeat {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: #8d9289;
+}
+.hostSeat > span {
+  border: 1px solid #c5c6ba;
+  border-radius: 50%;
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+}
+.hostSeat small {
+  font-size: 9px;
+}
+.chartCaption {
+  text-align: center;
+  font-size: 9px;
+  color: #939992;
+  margin: 3px 0 10px;
+}
+@media (max-width: 1060px) {
+  .seatChart {
+    height: 210px;
+  }
+}
+@media (max-height: 750px) and (min-width: 821px) {
+  .speakingHeading {
+    height: 36px;
+  }
+  .seatChart {
+    height: 178px;
+    width: 232px;
+  }
+  .chartCaption {
+    margin-bottom: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .seat,
+  .personActions button {
+    transition: none;
+  }
+}

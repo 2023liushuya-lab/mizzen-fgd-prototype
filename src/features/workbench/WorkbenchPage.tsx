@@ -62,6 +62,18 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
       setRightClosed(false);
     }
   }, [handKey, role]);
+  useEffect(() => {
+    const compact = window.matchMedia('(max-width: 820px)');
+    const apply = () => {
+      if (compact.matches) {
+        setOutlineFolded(true);
+        setRightClosed(true);
+      }
+    };
+    apply();
+    compact.addEventListener('change', apply);
+    return () => compact.removeEventListener('change', apply);
+  }, []);
   const contentRef = useRef<HTMLDivElement>(null);
   const identityKey = `mizzen-fgd-react:observer:${projectId}:${sessionId}`;
 

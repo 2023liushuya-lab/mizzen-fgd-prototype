@@ -53,6 +53,23 @@ export function ParticipantRoom({
     [leaving, setLeaving] = useState(false),
     [projectionClosed, setProjectionClosed] = useState<number | null>(null),
     [videoPerson, setVideoPerson] = useState<Participant | null>(null);
+  useEffect(() => {
+    const compact = window.matchMedia('(max-width: 700px)');
+    const apply = () => setRightOpen(!compact.matches);
+    apply();
+    compact.addEventListener('change', apply);
+    return () => compact.removeEventListener('change', apply);
+  }, []);
+  useEffect(() => {
+    const handle = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setConversation(null);
+        setMeetingInfo(false);
+      }
+    };
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
+  }, []);
   const projectionRef = useRef<HTMLElement>(null);
   const question = session.questions.find((q) => q.id === session.currentQuestionId),
     request = session.mediaRequests.find(
@@ -262,7 +279,10 @@ export function ParticipantRoom({
             aria-label={person.handRaisedAt ? '取消举手' : '举手'}
             aria-pressed={!!person.handRaisedAt}
             disabled={session.phase !== 'live'}
-            onClick={() => setHand(session.id, person.id, !person.handRaisedAt)}
+            onClick={() => {
+              setConversation(null);
+              setHand(session.id, person.id, !person.handRaisedAt);
+            }}
           >
             <Hand size={18} />
             <span>{person.handRaisedAt ? '已举手' : '举手'}</span>

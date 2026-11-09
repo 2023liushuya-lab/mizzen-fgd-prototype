@@ -366,78 +366,164 @@
   border-radius: 12px;
   padding: 2px 7px;
 }
-.topbar[data-role='host'][data-delivery='online'] {
-  display: grid;
-  grid-template-columns: auto minmax(120px, 1fr) auto auto auto auto;
-  padding: 0 12px;
-  gap: 8px;
-  background: #f1f0eb;
+/* Header groups share space in flow; no absolute clock or status labels. */
+.headerIdentity,
+.headerStatus,
+.headerTools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
-.topbar[data-role='host'][data-delivery='online'] .headerSessionTitle {
-  font-size: 12px;
-  color: #52606d;
-  font-weight: 400;
+.headerIdentity {
+  flex: 1;
+}
+.headerIdentity .headerSessionTitle {
+  min-width: 0;
   max-width: 300px;
+}
+.headerStatus {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.headerStatus time {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.headerStatus .recording {
+  white-space: nowrap;
+}
+.headerTools {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.headerTools .languageButton,
+.headerTools .viewSwitch,
+.headerTools .headerActions {
+  margin-left: 0;
+}
+.topbar[data-role='host'][data-delivery='online'] {
+  display: flex;
+  background: #f1f0eb;
+  gap: 16px;
 }
 .topbar[data-role='host'][data-delivery='online'] .headerProgress {
   display: none;
 }
-.topbar[data-role='host'][data-delivery='online'] .viewSwitch {
-  margin-left: 0;
-}
-.topbar[data-role='host'][data-delivery='online'] .headerActions {
-  margin-left: 0;
-}
-.topbar[data-role='host'][data-delivery='online'] .phaseTag {
-  justify-self: start;
-}
 .viewSwitch button {
-  font-size: 12px;
-  min-width: 86px;
   height: 30px;
 }
-.headerActions time {
-  font-weight: 550;
+.meetingInfo {
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 72px);
+  overflow-y: auto;
+  left: 0;
 }
-.headerActions .recording {
-  display: inline-block;
+.toolbarSocial .handSummary {
+  position: fixed;
+  left: 14px;
+  bottom: 70px;
+  margin-left: 0;
+  z-index: 42;
+  max-width: calc(100vw - 28px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-@media (max-width: 1150px) {
-  .topbar[data-role='host'][data-delivery='online'] .headerSessionTitle {
-    max-width: 170px;
+@media (max-width: 1180px) {
+  .headerStatus .phaseTag {
+    display: none;
+  }
+  .headerStatus {
+    gap: 8px;
+  }
+  .topbar {
+    gap: 10px;
+    padding-inline: 12px;
+  }
+  .headerIdentity .headerSessionTitle {
+    max-width: 180px;
+  }
+  .headerTools {
+    gap: 6px;
+  }
+  .viewSwitch button {
+    min-width: 32px;
+    padding: 5px 8px;
+  }
+  .viewSwitch span {
+    display: none;
+  }
+  .headerTools .headerProgress {
+    display: none;
+  }
+}
+@media (max-width: 820px) {
+  .topbar,
+  .topbar[data-role='host'][data-delivery='online'] {
+    height: var(--header-height);
+    min-height: var(--header-height);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 32px 32px;
+    gap: 0 8px;
+    padding: 4px 10px;
+  }
+  .headerIdentity {
+    grid-column: 1;
+    grid-row: 1;
+    gap: 6px;
+  }
+  .headerIdentity .headerSessionTitle {
+    max-width: none;
+    flex: 1;
+  }
+  .headerStatus {
+    grid-column: 2;
+    grid-row: 1;
+    gap: 7px;
+  }
+  .headerStatus .recording {
+    display: none;
+  }
+  .headerTools {
+    grid-row: 2;
+    grid-column: 1/-1;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 7px;
+  }
+  .headerTools .languageButton {
+    margin-right: auto;
+  }
+  .headerIdentity .brand,
+  .headerIdentity .headerDivider {
+    display: none;
+  }
+  .viewSwitch button {
+    height: 27px;
+    padding: 3px 8px;
+  }
+  .viewSwitch span {
+    display: inline;
+  }
+  .meetingWrap {
+    position: static;
+  }
+  .meetingInfo {
+    left: 10px;
+    top: 40px;
+    max-height: calc(100dvh - 56px);
+  }
+  .meetingToolbar {
+    height: var(--footer-height);
+    padding-top: 42px;
+    align-items: center;
   }
   .toolbarSocial .handSummary {
-    margin-left: 210px;
+    bottom: calc(var(--footer-height) + 10px);
   }
-  .handSummary {
-    font-size: 10px;
-    padding: 6px;
+  .languageButton {
+    max-width: 110px;
   }
-  .topbar[data-role='host'][data-delivery='online'] .headerActions {
-    gap: 5px;
-  }
-}
-
-.topbar[data-role='host'][data-delivery='online'] .headerActions time {
-  position: absolute;
-  left: calc(50% - 28px);
-  top: 12px;
-}
-.topbar[data-role='host'][data-delivery='online'] .headerActions .recording {
-  position: absolute;
-  left: calc(50% - 110px);
-  top: 13px;
-}
-.topbar[data-role='host'][data-delivery='online'] .network {
-  position: absolute;
-  left: calc(50% + 31px);
-  top: 15px;
-}
-.topbar[data-role='host'][data-delivery='online'] > .phaseTag {
-  position: absolute;
-  left: calc(50% + 61px);
-  top: 13px;
-}
-.topbar[data-role='host'][data-delivery='online'] .headerSessionTitle {
-  max-width: calc(50vw - 220px);
 }

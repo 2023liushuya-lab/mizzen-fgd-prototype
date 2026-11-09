@@ -169,3 +169,35 @@
   border-radius: 5px;
   font-size: 11px;
 }
+
+/* Fit the grid to its actual stage, not the whole browser window. */
+.mediaPanelLarge {
+  container-type: inline-size;
+  max-height: none;
+}
+.mediaPanelLarge .videoGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.mediaPanelLarge .videoTile {
+  min-height: 0;
+  height: clamp(115px, calc((100dvh - 270px) / 3), 180px);
+  max-height: none;
+  aspect-ratio: auto;
+}
+@container (min-width:740px) {
+  .mediaPanelLarge .videoGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@container (max-width:399px) {
+  .mediaPanelLarge .videoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+.videoTileLabel > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -47,6 +47,10 @@ export function WorkspaceHeader({
   useEffect(() => onTranslationChange?.(translated), [translated, onTranslationChange]);
   const [info, setInfo] = useState(false);
   const [copied, setCopied] = useState('');
+  const sessionTitle = session.title.replace(
+    /^(线上|线下)(?=\s*[·・])/u,
+    session.delivery === 'online' ? '线上' : '线下',
+  );
   const questions = Object.keys(session.runs).length;
   const phase =
     session.phase === 'live'
@@ -90,78 +94,72 @@ export function WorkspaceHeader({
           className={styles.headerDivider}
           hidden={role === 'host' && session.delivery === 'online'}
         />
-        {session.delivery === 'online' ? (
-          <div className={styles.meetingWrap}>
-            <button
-              className={styles.meetingButton}
-              onClick={() => setInfo(!info)}
-              aria-expanded={info}
-            >
-              会议信息
-              <ChevronDown size={12} />
-            </button>
-            {info && (
-              <div className={styles.meetingInfo}>
-                <strong>{session.title}</strong>
-                <div>
-                  <small>房间码</small>
-                  <span>{session.roomCode}</span>
-                  <button
-                    className="icon-button"
-                    aria-label="复制房间码"
-                    onClick={() => copy(session.roomCode, 'code')}
-                  >
-                    {copied === 'code' ? <Check size={15} /> : <Copy size={15} />}
-                  </button>
-                </div>
-                <div>
-                  <small>受访者链接</small>
-                  <input readOnly value={link} aria-label="受访者链接" />
-                  <button
-                    className="icon-button"
-                    aria-label="复制受访者链接"
-                    onClick={() => copy(link, 'link')}
-                  >
-                    {copied === 'link' ? <Check size={15} /> : <Copy size={15} />}
-                  </button>
-                </div>
-                <div>
-                  <small>旁听链接</small>
-                  <input readOnly value={observerUrl} aria-label="旁听链接" />
-                  <button
-                    className="icon-button"
-                    aria-label="复制旁听链接"
-                    onClick={() => copy(observerUrl, 'observer')}
-                  >
-                    {copied === 'observer' ? <Check size={15} /> : <Copy size={15} />}
-                  </button>
-                  <a
-                    href={observerPath}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="icon-button"
-                    aria-label="打开旁听室"
-                    title="在新标签页打开旁听室"
-                  >
-                    <ExternalLink size={15} />
-                  </a>
-                </div>
-                <div>
-                  <small>当前状态</small>
-                  <span className={styles.phaseTag}>{phase}</span>
-                </div>
-                {copied && !['code', 'link', 'observer'].includes(copied) && (
-                  <small role="status">{copied}</small>
-                )}
+        <div className={styles.meetingWrap}>
+          <button
+            className={styles.meetingButton}
+            onClick={() => setInfo(!info)}
+            aria-expanded={info}
+          >
+            会议信息
+            <ChevronDown size={12} />
+          </button>
+          {info && (
+            <div className={styles.meetingInfo}>
+              <strong>{sessionTitle}</strong>
+              <div>
+                <small>房间码</small>
+                <span>{session.roomCode}</span>
+                <button
+                  className="icon-button"
+                  aria-label="复制房间码"
+                  onClick={() => copy(session.roomCode, 'code')}
+                >
+                  {copied === 'code' ? <Check size={15} /> : <Copy size={15} />}
+                </button>
               </div>
-            )}
-          </div>
-        ) : (
-          <strong className={styles.headerSessionTitle}>{session.title}</strong>
-        )}
-        {session.delivery === 'online' && (
-          <strong className={styles.headerSessionTitle}>{session.title}</strong>
-        )}
+              <div>
+                <small>受访者链接</small>
+                <input readOnly value={link} aria-label="受访者链接" />
+                <button
+                  className="icon-button"
+                  aria-label="复制受访者链接"
+                  onClick={() => copy(link, 'link')}
+                >
+                  {copied === 'link' ? <Check size={15} /> : <Copy size={15} />}
+                </button>
+              </div>
+              <div>
+                <small>旁听链接</small>
+                <input readOnly value={observerUrl} aria-label="旁听链接" />
+                <button
+                  className="icon-button"
+                  aria-label="复制旁听链接"
+                  onClick={() => copy(observerUrl, 'observer')}
+                >
+                  {copied === 'observer' ? <Check size={15} /> : <Copy size={15} />}
+                </button>
+                <a
+                  href={observerPath}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="icon-button"
+                  aria-label="打开旁听室"
+                  title="在新标签页打开旁听室"
+                >
+                  <ExternalLink size={15} />
+                </a>
+              </div>
+              <div>
+                <small>当前状态</small>
+                <span className={styles.phaseTag}>{phase}</span>
+              </div>
+              {copied && !['code', 'link', 'observer'].includes(copied) && (
+                <small role="status">{copied}</small>
+              )}
+            </div>
+          )}
+        </div>
+        <strong className={styles.headerSessionTitle}>{sessionTitle}</strong>
         {role === 'observer' && <span className={styles.observerRolePill}>旁听视图 · 只读</span>}
       </div>
       <div className={styles.headerStatus}>

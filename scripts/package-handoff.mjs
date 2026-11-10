@@ -28,7 +28,9 @@ try {
     const target=join(staged,file);mkdirSync(dirname(target),{recursive:true});copyFileSync(join(root,file),target);
     return {file,sha256:createHash('sha256').update(readFileSync(target)).digest('hex')};
   });
-  writeFileSync(join(staged,'交接版本.json'),JSON.stringify({createdAt:now.toISOString(),kind:'frontend-interaction-prototype',backend:'local-command-journal-mock',files:manifest},null,2));
+  const sourceCommit = execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
+  const sourceBranch = execFileSync('git',['branch','--show-current'],{cwd:root,encoding:'utf8'}).trim();
+  writeFileSync(join(staged,'交接版本.json'),JSON.stringify({createdAt:now.toISOString(),sourceCommit,sourceBranch,repository:'https://github.com/2023liushuya-lab/mizzen-fgd-prototype',kind:'frontend-interaction-prototype',backend:'local-command-journal-mock',files:manifest},null,2));
   const archive = new JSZip();
   for (const file of [...files,'交接版本.json']) {
     const source=join(staged,file);

@@ -79,6 +79,19 @@ export default function Scenarios() {
             </Button>
           </section>
         ))}
+        {(['offline', 'online'] as const).map((delivery) => (
+          <section className="card stack" key={`review-${delivery}`}>
+            <span className="muted small">{delivery === 'offline' ? '线下' : '线上'} · 进行中</span>
+            <h2>全题作答与总结</h2>
+            <p className="muted small">10题已讨论，可查看各题型的按人回答与整体回答。</p>
+            <Button asChild variant="outline">
+              <Link href={`/review-demo?delivery=${delivery}&role=observer`}>打开旁听演示</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href={`/review-demo?delivery=${delivery}&role=host`}>打开主持演示</Link>
+            </Button>
+          </section>
+        ))}
       </div>
     </main>
   );

@@ -72,9 +72,9 @@
 }
 .personHoverCard {
   display: none;
-  position: absolute;
-  bottom: 38px;
-  left: -4px;
+  position: fixed;
+  bottom: calc(var(--footer-height, 51px) - 4px);
+  left: 12px;
   width: 284px;
   padding: 12px 13px;
   background: #ffffff;
@@ -292,4 +292,63 @@
   .personActions button {
     transition: none;
   }
+}
+
+.personHoverCard {
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 154px);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
+.personHover:hover::before,
+.personHover:focus-within::before {
+  content: '';
+  position: absolute;
+  bottom: 24px;
+  left: -4px;
+  width: 40px;
+  height: 24px;
+  z-index: 39;
+}
+.participantCardHead > div {
+  min-width: 0;
+}
+.participantCardHead strong {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 820px) {
+  .personHoverCard {
+    width: 284px;
+  }
+}
+@media (min-width: 821px) and (max-width: 1100px) {
+  .peopleStrip {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+  .presenceLabel {
+    font-size: 10px;
+  }
+  .presenceAvatar {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.hoverQr {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e7e6dc;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #879198;
+  font-size: 11px;
+  min-height: 100px;
+}
+.hoverQr img {
+  width: 104px;
+  height: 104px;
+  flex-shrink: 0;
+  border-radius: 6px;
 }

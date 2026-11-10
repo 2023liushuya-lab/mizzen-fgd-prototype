@@ -1,6 +1,16 @@
 'use client';
 import { useRef, useState } from 'react';
-import { Check, CheckCircle2, Download, Pencil, Plus, QrCode, Trash2, Upload } from 'lucide-react';
+import {
+  Check,
+  CheckCircle2,
+  Download,
+  Pencil,
+  Plus,
+  QrCode,
+  Trash2,
+  Upload,
+  Mic,
+} from 'lucide-react';
 import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -8,6 +18,7 @@ import { backgroundOf, uid } from '@/lib/utils';
 import type { Participant, Session } from '@/types/fgd';
 import { Empty, Notice, colors } from './shared';
 import styles from './entry.module.css';
+import { VoiceRecorder } from './VoiceRecorder';
 interface PersonDraft {
   name: string;
   age: string;
@@ -35,6 +46,7 @@ export default function RosterEditor({
   const [importError, setImportError] = useState('');
   const [remove, setRemove] = useState<Participant | null>(null);
   const people = session.participants.filter((p) => !p.removed);
+  const [recordingPerson, setRecordingPerson] = useState<string | null>(null);
   const pending = session.phase === 'pending';
   function edit(person: Participant | 'new') {
     setEditing(person);
@@ -152,7 +164,8 @@ export default function RosterEditor({
         <div className={styles.sectionTitle}>
           <div>
             <h2>
-              受访者名单 <span className={styles.count}>{people.length}</span>
+              {session.delivery === 'offline' ? '名单与声纹' : '受访者名单'}{' '}
+              <span className={styles.count}>{people.length}</span>
             </h2>
             <p className="muted">姓名与背景信息将在主持工作台中展示。</p>
           </div>
@@ -197,13 +210,40 @@ export default function RosterEditor({
           <table>
             <thead>
               <tr>
-                <th>受访者</th>
+                <th>{session.delivery === 'offline' ? '人员' : '受访者'}</th>
                 <th>背景信息</th>
                 {session.delivery === 'offline' && <th>声纹</th>}
                 <th>操作</th>
               </tr>
             </thead>
             <tbody>
+              {session.delivery === 'offline' && (
+                <tr>
+                  <td>
+                    <div className={styles.personName}>
+                      <span className={styles.personAvatar} style={{ background: '#467d78' }}>
+                        主
+                      </span>
+                      <strong>主持人</strong>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={styles.background}>主持与引导讨论</span>
+                  </td>
+                  <td>
+                    <button
+                      className={`${styles.voiceState} ${session.hostVoiceEnabled ? styles.voiceEnabled : ''}`}
+                      disabled={!pending}
+                      aria-label="录制主持人声纹"
+                      onClick={() => setRecordingPerson('host')}
+                    >
+                      <Mic size={13} />
+                      {session.hostVoiceEnabled ? '已录制' : '录制声纹'}
+                    </button>
+                  </td>
+                  <td />
+                </tr>
+              )}
               {people.map((p) => (
                 <tr key={p.id}>
                   <td>
@@ -222,25 +262,15 @@ export default function RosterEditor({
                       <button
                         className={`${styles.voiceState} ${p.voiceEnabled ? styles.voiceEnabled : ''}`}
                         disabled={!pending}
-                        onClick={() =>
-                          patch({
-                            participants: session.participants.map((item) =>
-                              item.id === p.id
-                                ? {
-                                    ...item,
-                                    voiceEnabled: !item.voiceEnabled,
-                                  }
-                                : item,
-                            ),
-                          })
-                        }
+                        aria-label={`录制${p.name}声纹`}
+                        onClick={() => setRecordingPerson(p.id)}
                       >
                         {p.voiceEnabled ? (
                           <Check size={13} />
                         ) : (
                           <span className={styles.statusDot} />
                         )}
-                        {p.voiceEnabled ? '已启用' : '待启用'}
+                        {p.voiceEnabled ? '已录制' : '录制声纹'}
                       </button>
                     </td>
                   )}
@@ -290,24 +320,32 @@ export default function RosterEditor({
             <Download size={13} />
             下载导入模板
           </button>
-          {session.delivery === 'offline' && pending && (
-            <button
-              onClick={() =>
-                patch({
-                  hostVoiceEnabled: true,
-                  participants: session.participants.map((p) => ({
-                    ...p,
-                    voiceEnabled: true,
-                  })),
-                })
-              }
-            >
-              模拟全员声纹启用
-              <CheckCircle2 size={13} />
-            </button>
-          )}
         </div>
       </section>
+      <VoiceRecorder
+        target={
+          recordingPerson
+            ? {
+                id: recordingPerson,
+                name:
+                  recordingPerson === 'host'
+                    ? '主持人'
+                    : people.find((p) => p.id === recordingPerson)?.name || '受访者',
+              }
+            : null
+        }
+        onClose={() => setRecordingPerson(null)}
+        onSave={(id) => {
+          if (id === 'host') patch({ hostVoiceEnabled: true });
+          else
+            patch({
+              participants: session.participants.map((p) =>
+                p.id === id ? { ...p, voiceEnabled: true } : p,
+              ),
+            });
+          setRecordingPerson(null);
+        }}
+      />
       <Modal
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}

@@ -67,7 +67,7 @@
 }
 .seatPie {
   position: relative;
-  width: min(100%, 248px);
+  width: min(100%, 194px);
   aspect-ratio: 1;
   margin: 2px auto 0;
   display: grid;
@@ -126,6 +126,8 @@
   border: 0;
   background: transparent;
   font-size: 11px;
+  white-space: nowrap;
+  width: max-content;
   font-weight: 650;
   color: #2b312f;
   cursor: pointer;
@@ -203,7 +205,7 @@
 }
 @media (max-height: 750px) and (min-width: 821px) {
   .seatPie {
-    width: min(100%, 216px);
+    width: min(100%, 194px);
   }
 }
 @media (prefers-reduced-motion: reduce) {

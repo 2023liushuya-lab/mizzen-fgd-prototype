@@ -14,8 +14,12 @@ export function ResultDialogs({
   onProfileChange,
   lightbox,
   onImageChange,
+  blind = false,
+  sampleLabel,
 }: {
   session: Session;
+  blind?: boolean;
+  sampleLabel?: string;
   profile: Participant | null;
   onProfileChange: (person: Participant | null) => void;
   lightbox: LightboxData | null;
@@ -55,6 +59,8 @@ export function ResultDialogs({
       >
         {lightbox && (
           <ConceptCanvas
+            sampleLabel={sampleLabel}
+            blind={blind}
             image={lightbox.image}
             marks={lightbox.marks}
             people={session.participants}

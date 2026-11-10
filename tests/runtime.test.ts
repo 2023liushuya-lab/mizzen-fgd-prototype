@@ -10,6 +10,7 @@ import {
 import { useFgdStore } from '@/stores/fgd-store';
 import type { Command, CommandPayload } from '@/types/commands';
 import type { FgdData, Transcript } from '@/types/fgd';
+import { ensureReviewDemo } from '@/features/workbench/review-demo';
 import { sectionMilliseconds } from '@/features/workbench/helpers';
 
 const SESSION = 'session-online-1';
@@ -493,6 +494,20 @@ describe('store paper-note and session isolation', () => {
   });
   afterAll(() => {
     if (originalStorage) Object.defineProperty(window, 'localStorage', originalStorage);
+  });
+
+  it('normal entry and shortcut reuse complete demos without modifying existing sessions', () => {
+    const before = structuredClone(useFgdStore.getState().data.sessions);
+    const first = ensureReviewDemo('offline', 'project-1');
+    const second = ensureReviewDemo('offline', 'project-1');
+    expect(second.id).toBe(first.id);
+    expect(first.phase).toBe('live');
+    expect(Object.keys(first.runs)).toHaveLength(11);
+    expect(Object.values(first.runs['q-11'].answers).every((a) => !!a.image)).toBe(true);
+    for (const original of before)
+      expect(useFgdStore.getState().data.sessions.find((s) => s.id === original.id)).toEqual(
+        original,
+      );
   });
 
   it('limits successful sends to one per minute and permits the next send after 60 seconds', () => {

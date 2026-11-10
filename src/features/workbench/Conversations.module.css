@@ -43,7 +43,7 @@
 .conversationPopover {
   position: fixed;
   right: 18px;
-  bottom: calc(var(--footer-height) + 10px);
+  bottom: calc(var(--footer-height, 51px) + 10px);
   width: 375px;
   max-width: calc(100vw - 30px);
   height: 390px;
@@ -166,9 +166,6 @@
   padding: 2px 5px;
 }
 @media (max-width: 820px) {
-  .conversationPopover {
-    bottom: calc(var(--footer-height) + 52px);
-  }
   .reactionLayer {
     left: 15%;
     right: 15%;
@@ -224,4 +221,20 @@
 
 :global([data-bilingual='false']) .translation {
   display: none;
+}
+
+.chatMessages {
+  min-height: 0;
+}
+.chatMessage > p,
+.utterance p {
+  overflow-wrap: anywhere;
+}
+.chatComposer textarea {
+  min-width: 0;
+  flex: 1;
+}
+.chatComposer button,
+.inboxHeading {
+  flex-shrink: 0;
 }

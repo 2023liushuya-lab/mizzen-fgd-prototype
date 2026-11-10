@@ -47,6 +47,10 @@ export function WorkspaceHeader({
   useEffect(() => onTranslationChange?.(translated), [translated, onTranslationChange]);
   const [info, setInfo] = useState(false);
   const [copied, setCopied] = useState('');
+  const sessionTitle = session.title.replace(
+    /^(线上|线下)(?=\s*[·・])/u,
+    session.delivery === 'online' ? '线上' : '线下',
+  );
   const questions = Object.keys(session.runs).length;
   const phase =
     session.phase === 'live'
@@ -77,19 +81,19 @@ export function WorkspaceHeader({
   }
   return (
     <header className={styles.topbar} data-role={role} data-delivery={session.delivery}>
-      <a
-        hidden={role === 'host' && session.delivery === 'online'}
-        className={styles.brand}
-        href="/"
-        aria-label="Mizzen工作空间"
-      >
-        mizzen
-      </a>
-      <span
-        className={styles.headerDivider}
-        hidden={role === 'host' && session.delivery === 'online'}
-      />
-      {session.delivery === 'online' ? (
+      <div className={styles.headerIdentity}>
+        <a
+          hidden={role === 'host' && session.delivery === 'online'}
+          className={styles.brand}
+          href="/"
+          aria-label="Mizzen工作空间"
+        >
+          mizzen
+        </a>
+        <span
+          className={styles.headerDivider}
+          hidden={role === 'host' && session.delivery === 'online'}
+        />
         <div className={styles.meetingWrap}>
           <button
             className={styles.meetingButton}
@@ -101,7 +105,7 @@ export function WorkspaceHeader({
           </button>
           {info && (
             <div className={styles.meetingInfo}>
-              <strong>{session.title}</strong>
+              <strong>{sessionTitle}</strong>
               <div>
                 <small>房间码</small>
                 <span>{session.roomCode}</span>
@@ -155,64 +159,13 @@ export function WorkspaceHeader({
             </div>
           )}
         </div>
-      ) : (
-        <strong className={styles.headerSessionTitle}>{session.title}</strong>
-      )}
-      {session.delivery === 'online' && (
-        <strong className={styles.headerSessionTitle}>{session.title}</strong>
-      )}
-      {role === 'observer' && <span className={styles.observerRolePill}>旁听视图 · 只读</span>}
-      <span className={`${styles.phaseTag} ${session.phase === 'live' ? styles.phaseLive : ''}`}>
-        {phase}
-      </span>
-      <div className={styles.headerProgress}>
-        <span>
-          {questions} / {session.questions.length}
+        <strong className={styles.headerSessionTitle}>{sessionTitle}</strong>
+        {role === 'observer' && <span className={styles.observerRolePill}>旁听视图 · 只读</span>}
+      </div>
+      <div className={styles.headerStatus}>
+        <span className={`${styles.phaseTag} ${session.phase === 'live' ? styles.phaseLive : ''}`}>
+          {phase}
         </span>
-        <i>
-          <b
-            style={{
-              width: `${(questions / Math.max(1, session.questions.length)) * 100}%`,
-            }}
-          />
-        </i>
-      </div>
-      {session.delivery === 'online' && (
-        <button
-          className={styles.languageButton}
-          aria-pressed={translated}
-          onClick={() => setTranslated(!translated)}
-          title="原文 / 双语对照"
-        >
-          <Globe size={13} />
-          {translated ? '中英对照' : '原文'}
-        </button>
-      )}
-      <div
-        className={styles.viewSwitch}
-        role="group"
-        aria-label={role === 'observer' ? '旁听工作台视图' : '工作台视图'}
-      >
-        <button
-          aria-label="题目视图"
-          aria-pressed={view === 'question'}
-          className={view === 'question' ? styles.activeView : ''}
-          onClick={() => onView('question')}
-        >
-          <Monitor size={15} />
-          <span>题目视图</span>
-        </button>
-        <button
-          aria-label={session.delivery === 'offline' ? '现场画面' : '视频视图'}
-          aria-pressed={view === 'respondents'}
-          className={view === 'respondents' ? styles.activeView : ''}
-          onClick={() => onView('respondents')}
-        >
-          <Grid2X2 size={15} />
-          <span>{session.delivery === 'offline' ? '现场画面' : '视频视图'}</span>
-        </button>
-      </div>
-      <div className={styles.headerActions}>
         {session.delivery === 'online' && (
           <span className={styles.recording}>
             {session.phase === 'ended'
@@ -224,26 +177,81 @@ export function WorkspaceHeader({
         )}
         <Signal size={17} className={styles.network} aria-label="网络连接正常" role="img" />
         <time>{formatTime(elapsed)}</time>
-        {role === 'host' && (
-          <>
-            <button
-              className="icon-button"
-              title="全屏专注"
-              aria-label="全屏专注"
-              onClick={() => {
-                if (document.fullscreenElement) void document.exitFullscreen();
-                else void document.documentElement.requestFullscreen().catch(() => {});
+      </div>
+      <div className={styles.headerTools}>
+        <div className={styles.headerProgress}>
+          <span>
+            {questions} / {session.questions.length}
+          </span>
+          <i>
+            <b
+              style={{
+                width: `${(questions / Math.max(1, session.questions.length)) * 100}%`,
               }}
+            />
+          </i>
+        </div>
+        {session.delivery === 'online' && (
+          <button
+            className={styles.languageButton}
+            aria-pressed={translated}
+            onClick={() => setTranslated(!translated)}
+            title="原文 / 双语对照"
+          >
+            <Globe size={13} />
+            {translated ? '中英对照' : '原文'}
+          </button>
+        )}
+        {(session.delivery === 'online' || role === 'observer') && (
+          <>
+            <div
+              className={styles.viewSwitch}
+              role="group"
+              aria-label={role === 'observer' ? '旁听工作台视图' : '工作台视图'}
             >
-              <Maximize2 size={17} />
-            </button>
-            {session.delivery === 'offline' && session.phase !== 'ended' && (
-              <button className={styles.endText} onClick={onEnd}>
-                结束场次
+              <button
+                aria-label="题目视图"
+                aria-pressed={view === 'question'}
+                className={view === 'question' ? styles.activeView : ''}
+                onClick={() => onView('question')}
+              >
+                <Monitor size={15} />
+                <span>题目视图</span>
               </button>
-            )}
+              <button
+                aria-label={session.delivery === 'offline' ? '现场画面' : '视频视图'}
+                aria-pressed={view === 'respondents'}
+                className={view === 'respondents' ? styles.activeView : ''}
+                onClick={() => onView('respondents')}
+              >
+                <Grid2X2 size={15} />
+                <span>{session.delivery === 'offline' ? '现场画面' : '视频视图'}</span>
+              </button>
+            </div>
           </>
         )}
+        <div className={styles.headerActions}>
+          {role === 'host' && (
+            <>
+              <button
+                className="icon-button"
+                title="全屏专注"
+                aria-label="全屏专注"
+                onClick={() => {
+                  if (document.fullscreenElement) void document.exitFullscreen();
+                  else void document.documentElement.requestFullscreen().catch(() => {});
+                }}
+              >
+                <Maximize2 size={17} />
+              </button>
+              {session.delivery === 'offline' && session.phase !== 'ended' && (
+                <button className={styles.endText} onClick={onEnd}>
+                  结束场次
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

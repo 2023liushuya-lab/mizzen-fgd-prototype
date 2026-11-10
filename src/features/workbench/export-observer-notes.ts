@@ -15,7 +15,7 @@ export function exportObserverNotes(session: Session, identity: Identity) {
     .filter((note) => note.observerId === identity.id)
     .map(
       (note, i) =>
-        `## ${i + 1}. 小纸条\n\n${new Date(note.createdAt).toLocaleString('zh-CN')} · ${note.status === 'handled' ? '已处理' : note.status === 'failed' ? '发送失败' : '已送达'}\n\n${note.text}`,
+        `## ${i + 1}. 小纸条\n\n${new Date(note.createdAt).toLocaleString('zh-CN')} · ${note.status === 'failed' ? '发送失败' : '已送达'}\n\n${note.text}`,
     )
     .join('\n\n');
   downloadText(

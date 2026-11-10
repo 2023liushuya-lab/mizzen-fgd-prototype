@@ -10,11 +10,15 @@ export function ImageResults({
   question,
   onEnlarge,
   showFollowups = true,
+  blind = false,
+  sampleLabel,
 }: {
   session: Session;
   question: Question;
   onEnlarge: (image: { title: string; image?: string; marks?: Answer['marks'] }) => void;
   showFollowups?: boolean;
+  blind?: boolean;
+  sampleLabel?: string;
 }) {
   const answers = Object.values(session.runs[question.id]?.answers || {});
   const marks = answers.flatMap((a) => a.marks || []);
@@ -41,7 +45,12 @@ export function ImageResults({
             </button>
           </div>
         </div>
-        <ConceptCanvas marks={marks} people={session.participants} />
+        <ConceptCanvas
+          sampleLabel={sampleLabel}
+          blind={blind}
+          marks={marks}
+          people={session.participants}
+        />
         <MarkLegend />
         {!answers.length && (
           <p className={styles.waiting}>等待受访者提交标注，标记将叠加在此图。</p>
@@ -79,6 +88,8 @@ export function ImageResults({
               >
                 {answer.image ? (
                   <ConceptCanvas
+                    sampleLabel={sampleLabel}
+                    blind={blind}
                     image={answer.image}
                     marks={answer.marks}
                     people={session.participants}
@@ -113,6 +124,8 @@ export function ImageResults({
               .map((answer) => (
                 <div key={answer.participantId}>
                   <ConceptCanvas
+                    sampleLabel={sampleLabel}
+                    blind={blind}
                     image={answer.image}
                     marks={answer.marks}
                     people={session.participants}

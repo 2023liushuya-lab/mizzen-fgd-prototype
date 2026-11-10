@@ -112,7 +112,7 @@ export const useFgdStore = create<Store>((set, get) => {
       const people = s.participants.filter((p) => !p.removed);
       if (!people.length) return { ok: false, error: '请先导入或添加受访者' };
       if (s.delivery === 'offline' && (!s.hostVoiceEnabled || people.some((p) => !p.voiceEnabled)))
-        return { ok: false, error: '请先启用主持人与所有受访者的声纹' };
+        return { ok: false, error: '请先录制主持人与所有受访者的声纹' };
       safeCommit({ type: 'start-session', id });
       return { ok: true };
     },
@@ -193,6 +193,9 @@ export const useFgdStore = create<Store>((set, get) => {
       return failed
         ? { ok: false, error: '网络已离线，草稿已保留，可恢复后重试。', noteId }
         : { ok: true, noteId };
+    },
+    pinNote(id, noteId, pinned) {
+      safeCommit({ type: 'pin-note', id, noteId, pinned });
     },
     handleNote(id, noteId) {
       safeCommit({ type: 'handle-note', id, noteId });

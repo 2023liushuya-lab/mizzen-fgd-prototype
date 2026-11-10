@@ -36,9 +36,10 @@ export function SpeakingShare({
     const collapseForShortViewport = () => {
       if (compact.matches) setOpen(false);
     };
+    if (readonly) collapseForShortViewport();
     compact.addEventListener('change', collapseForShortViewport);
     return () => compact.removeEventListener('change', collapseForShortViewport);
-  }, []);
+  }, [readonly]);
   const update = useFgdStore((s) => s.updateSession);
   const people = session.seatOrder
     .map((id) => session.participants.find((p) => p.id === id))
@@ -227,7 +228,7 @@ export function SpeakingShare({
               <span>主持人</span>
             </div>
           </div>
-          <div className={styles.shareHoverDetail}>
+          <div className={styles.shareHoverDetail} hidden={!activePerson}>
             {activePerson
               ? `${activePerson.name} · 累计发言 ${mm}:${ss}（${activePct}%）`
               : '悬停扇区或座位查看发言时长，点击查看资料'}

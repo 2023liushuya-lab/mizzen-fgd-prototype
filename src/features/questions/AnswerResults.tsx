@@ -4,6 +4,7 @@ import type { Participant, Question, Session } from '@/types/fgd';
 import { ImageResults } from './ImageResults';
 import { RawResults } from './RawResults';
 import { ResultDialogs, type LightboxData } from './ResultDialogs';
+import { participantMaterialText } from '@/lib/participant-materials';
 import styles from './questions.module.css';
 
 export function AnswerResults({ session, question }: { session: Session; question: Question }) {
@@ -24,6 +25,12 @@ export function AnswerResults({ session, question }: { session: Session; questio
           question={question}
           onEnlarge={setLightbox}
           showFollowups={false}
+          blind={session.testMode === 'blind'}
+          sampleLabel={
+            participantMaterialText(session, '冰绽凝霜') === '冰绽凝霜'
+              ? '样品 A'
+              : participantMaterialText(session, '冰绽凝霜')
+          }
         />
       ) : (
         <RawResults
@@ -39,6 +46,12 @@ export function AnswerResults({ session, question }: { session: Session; questio
         onProfileChange={setProfile}
         lightbox={lightbox}
         onImageChange={setLightbox}
+        blind={session.testMode === 'blind'}
+        sampleLabel={
+          participantMaterialText(session, '冰绽凝霜') === '冰绽凝霜'
+            ? '样品 A'
+            : participantMaterialText(session, '冰绽凝霜')
+        }
       />
     </div>
   );

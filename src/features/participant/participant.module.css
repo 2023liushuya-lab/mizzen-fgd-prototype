@@ -160,6 +160,7 @@
   background: #62a18b;
 }
 .room {
+  --footer-height: 58px;
   height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -201,7 +202,7 @@
 }
 .roomBody {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 272px;
+  grid-template-columns: minmax(0, 1fr) clamp(200px, 21vw, 284px);
   min-height: 0;
   flex: 1;
 }
@@ -557,6 +558,150 @@
 .videoRail {
   background: #f1f0eb;
 }
+
 .roomBody {
-  grid-template-columns: minmax(0, 1fr) clamp(140px, 21vw, 284px);
+  position: relative;
+}
+.roomBody.rightClosed {
+  grid-template-columns: minmax(0, 1fr) 42px;
+}
+.videoRail {
+  min-width: 0;
+}
+.railHeader {
+  flex-shrink: 0;
+}
+.conversation {
+  max-width: calc(100vw - 28px);
+  bottom: calc(var(--footer-height) + 10px);
+  max-height: calc(100dvh - 134px);
+}
+.messages p {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.chatInput textarea {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+}
+.chatInput button {
+  flex-shrink: 0;
+}
+.speechDemo form {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.speechDemo input {
+  min-width: 0;
+  flex: 1;
+}
+.roomHeader {
+  height: 48px;
+  gap: 12px;
+}
+.roomHeader > time,
+.roomHeader > span[aria-label] {
+  flex-shrink: 0;
+}
+.roomTitle {
+  min-width: 0;
+  flex: 1;
+}
+.progress {
+  flex-shrink: 0;
+}
+@media (max-width: 700px) {
+  .roomHeader {
+    height: 64px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: 28px 24px;
+    padding: 4px 12px;
+    gap: 0 10px;
+  }
+  .meetingInfoWrap {
+    grid-column: 1;
+    grid-row: 1;
+    position: static;
+  }
+  .roomTitle {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: none;
+    font-size: 11px;
+  }
+  .progress {
+    grid-column: 2/-1;
+    grid-row: 2;
+    gap: 6px;
+    margin-left: 0;
+    justify-self: end;
+    font-size: 10px;
+  }
+  .progress progress {
+    display: block;
+    width: 60px;
+  }
+  .recording {
+    display: none;
+  }
+  .roomHeader > span[aria-label] {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .roomHeader > time {
+    grid-column: 3;
+    grid-row: 1;
+    font-size: 11px;
+  }
+  .meetingInfo {
+    left: 12px;
+    top: 36px;
+    max-height: calc(100dvh - 110px);
+    overflow: auto;
+  }
+  .roomBody,
+  .roomBody.rightClosed {
+    grid-template-columns: minmax(0, 1fr) 42px;
+  }
+  .videoRail {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(284px, calc(100vw - 54px));
+    z-index: 32;
+    border: 1px solid var(--line);
+    padding: 0 8px 12px;
+  }
+  .videoRail > :not(:first-child) {
+    display: block;
+  }
+  .rightClosed .videoRail {
+    position: static;
+    width: 42px;
+    padding: 4px;
+  }
+  .questionArea {
+    padding: 14px 12px 24px;
+  }
+  .conversation {
+    left: 12px;
+    right: auto;
+    width: calc(100vw - 24px);
+    max-width: none;
+  }
+  .handControl {
+    padding: 7px;
+  }
+  .handControl span {
+    display: none;
+  }
+  .socialControls {
+    gap: 4px;
+  }
+  .roomFooter {
+    padding: 0 10px;
+  }
 }

@@ -1,6 +1,6 @@
 .workspace {
   --header-height: 48px;
-  --footer-height: 0px;
+  --footer-height: 51px;
   --review-height: 0px;
   --outline-width: 272px;
   --right-width: 304px;
@@ -57,21 +57,6 @@
 }
 .noQuestion p {
   font-size: 12px;
-}
-.returnCurrent {
-  position: fixed;
-  bottom: calc(var(--footer-height) + 66px);
-  left: calc(var(--outline-width) + (100vw - var(--outline-width) - var(--right-width)) / 2);
-  z-index: 15;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid #d5d5cb;
-  background: #fffefa;
-  display: grid;
-  place-items: center;
-  color: #002554;
-  cursor: pointer;
 }
 .errorBanner {
   display: flex;
@@ -514,72 +499,46 @@
 }
 @media (max-width: 820px) {
   .workspace {
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
-    --header-height: 58px;
+    --header-height: 72px;
     --outline-width: 64px;
-    --right-width: 0px;
+    --right-width: 42px;
   }
-  .topbar .brand {
-    font-size: 18px;
+  .hasToolbar {
+    --footer-height: 98px;
   }
   .workspaceBody {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    min-height: calc(100dvh - 58px);
-    padding-bottom: 50px;
+    grid-template-columns: 64px minmax(0, 1fr) 42px;
   }
   .main {
-    overflow: visible;
-    padding: 18px 14px 25px;
-    min-height: 330px;
+    padding: 16px 12px 64px;
   }
   .rightPanel {
-    width: 100%;
-    min-height: 360px;
-    border-left: 0;
-    border-top: 1px solid #dfded7;
-    height: 550px;
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(304px, calc(100vw - 64px));
+    z-index: 30;
+    border-left: 1px solid #dfded7;
   }
   .closedRight .rightPanel {
-    min-height: 40px;
-    height: 40px;
+    position: static;
+    width: 42px;
+    z-index: 1;
   }
-  .expandRight {
-    padding: 9px;
-  }
-  .rightPanel .notesPanel {
-    min-height: 0;
-  }
-  .leftFooter {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: var(--footer-height);
-    height: 45px;
-  }
-  .hasToolbar .leftFooter {
-    bottom: 62px;
-  }
-  .returnCurrent {
-    left: auto;
-    right: 15px;
-    bottom: calc(var(--footer-height) + 58px);
-  }
-  .offlineCaptions {
-    right: 10px;
-    bottom: 6px;
-  }
-  .hasReview {
-    --review-height: 42px;
+  .workspaceBody:not(.foldedLayout) > aside:first-child {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: min(280px, calc(100vw - 48px));
+    z-index: 31;
+    border-right: 1px solid #dfded7;
   }
   .reviewBanner {
     height: 42px;
-    flex-wrap: wrap;
-    gap: 3px;
-    padding: 5px 12px;
+    font-size: 10px;
+    gap: 6px;
+    align-items: center;
+  }
+  .hasReview {
+    --review-height: 42px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -833,4 +792,175 @@
   top: 0;
   z-index: 3;
   background: #f7f5ef;
+}
+
+/* Keep the stage stable when either side opens as an overlay. */
+.workspaceBody > .main {
+  grid-column: 2;
+  grid-row: 1;
+  overflow-wrap: anywhere;
+}
+.workspaceBody > .rightPanel {
+  grid-column: 3;
+  grid-row: 1;
+}
+.workspaceBody > aside:first-child {
+  grid-column: 1;
+  grid-row: 1;
+}
+.rightActions {
+  flex-shrink: 0;
+}
+.workspace[data-role='host'] .rightPanel {
+  overflow: hidden;
+}
+.stateOverview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex-shrink: 0;
+}
+.observerPane {
+  overflow-y: auto;
+}
+.observerPane > .stateOverview {
+  display: contents;
+}
+.observerPane > section:last-child {
+  min-height: 230px;
+  flex: 1 1 280px;
+}
+.leftFooter {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: var(--footer-height);
+  background: #f7f5ef;
+  justify-content: flex-start;
+}
+.observerCaptionBtn,
+.offlineCaptions {
+  right: 14px;
+  bottom: 8px;
+}
+.topicQuestion > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.observerNoteHead {
+  flex-wrap: wrap;
+}
+.observerNoteBody {
+  overflow-wrap: anywhere;
+}
+.browseBanner {
+  flex-wrap: wrap;
+  align-items: center;
+}
+.browseBanner button {
+  flex-shrink: 0;
+}
+@media (max-width: 820px) {
+  .workspace[data-role='host'][data-delivery='online'] .leftFooter {
+    left: 4px;
+    bottom: 53px;
+    height: 40px;
+    max-width: calc(100vw - 8px);
+  }
+  .workspace[data-role='host'][data-delivery='online'] .questionPager {
+    bottom: calc(var(--footer-height) + 8px);
+  }
+  .observerPane > section:last-child {
+    min-height: 220px;
+  }
+}
+
+.rightActions {
+  min-height: 32px;
+  height: 32px;
+  padding-inline: 10px;
+  font-size: 12px;
+}
+.stateTitle {
+  font-size: 12px;
+  gap: 6px;
+}
+.spark {
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  border-radius: 5px;
+}
+.workspace[data-role='observer'] .questionPager,
+.workspace[data-role='host'][data-delivery='offline'] .questionPager {
+  bottom: 8px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  z-index: 30;
+}
+@media (max-width: 820px) {
+  .workspace[data-role='observer'] {
+    --footer-height: 91px;
+  }
+  .workspace[data-role='observer'] .leftFooter {
+    align-items: flex-start;
+    padding-top: 2px;
+  }
+}
+
+.topicDirections {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.topicList {
+  max-height: 150px;
+  overflow-y: auto;
+}
+.hostNotes {
+  display: flex;
+  flex-direction: column;
+  min-height: 140px;
+  padding: 11px 12px;
+  background: #faf3e4;
+  border: 1px solid #e3d1ab;
+  border-radius: 12px;
+}
+.hostNotes h3 {
+  margin: 0;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #7c5d29;
+}
+.hostNoteList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.hostNoteList .observerNoteItem {
+  flex-shrink: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: #8a642b;
+}
+.hostNoteList .observerNoteItem:disabled {
+  cursor: default;
+}
+.pinnedNote {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-color: #b78a41;
+  background: #fff1ce;
+}
+
+.stateOverview {
+  display: contents;
 }

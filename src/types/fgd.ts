@@ -110,6 +110,7 @@ export interface PaperNote {
   questionTitle: string;
   createdAt: number;
   status: 'pending' | 'handled' | 'failed';
+  pinned?: boolean;
   attempts: number;
 }
 export interface ChatMessage {
@@ -138,10 +139,13 @@ export interface Project {
   createdAt: number;
 }
 export interface Session {
+  demoScenario?: 'full-answers';
   id: string;
   projectId: string;
   title: string;
   delivery: Delivery;
+  testMode?: 'regular' | 'blind';
+  blindLabels?: string[];
   roomCode: string;
   observerToken: string;
   phase: Phase;
@@ -212,6 +216,7 @@ export interface FgdActions {
     retryId?: string,
   ) => NoteResult;
   handleNote: (id: string, noteId: string) => void;
+  pinNote: (id: string, noteId: string, pinned: boolean) => void;
   sendChat: (id: string, senderId: string, name: string, text: string, reaction?: boolean) => void;
   requestMedia: (
     id: string,

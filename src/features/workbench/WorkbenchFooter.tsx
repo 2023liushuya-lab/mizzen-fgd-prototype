@@ -30,28 +30,26 @@ export function ParticipantFooter({
   return (
     <div className={styles.leftFooter}>
       <ParticipantStrip session={session} readonly={readonly} onProfile={onProfile} />
-      {session.delivery === 'online' && (
-        <div className={styles.questionPager} role="group" aria-label="切换浏览题目">
-          <button
-            className="icon-button"
-            aria-label="上一题"
-            title="上一题"
-            disabled={index < 1}
-            onClick={() => question && onQuestion(visibleQuestions[index - 1].id)}
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <button
-            className="icon-button"
-            aria-label="下一题"
-            title="下一题"
-            disabled={!question || index >= visibleQuestions.length - 1}
-            onClick={() => question && onQuestion(visibleQuestions[index + 1].id)}
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-      )}
+      <div className={styles.questionPager} role="group" aria-label="切换浏览题目">
+        <button
+          className="icon-button"
+          aria-label="上一题"
+          title="上一题"
+          disabled={index < 1}
+          onClick={() => question && onQuestion(visibleQuestions[index - 1].id)}
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <button
+          className="icon-button"
+          aria-label="下一题"
+          title="下一题"
+          disabled={!question || index >= visibleQuestions.length - 1}
+          onClick={() => question && onQuestion(visibleQuestions[index + 1].id)}
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
       {readonly && onConversation && (
         <button
           type="button"

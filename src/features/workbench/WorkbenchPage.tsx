@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ArrowUp, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { useFgdStore } from '@/stores/fgd-store';
 import { QuestionWorkspace } from '@/features/questions';
 import { raisedPeople } from './HandQueue';
@@ -47,7 +47,6 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
   const [error, setError] = useState('');
   const [identity, setIdentity] = useState<Identity | null>(DEFAULT_OBSERVER_IDENTITY);
   const [identityLoaded, setIdentityLoaded] = useState(false);
-  const [showReturn, setShowReturn] = useState(false);
   const [bilingual, setBilingual] = useState(false);
   const [handQueueOpen, setHandQueueOpen] = useState(false);
   const handKey = session
@@ -61,6 +60,22 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
       setRightClosed(false);
     }
   }, [handKey, role]);
+  useEffect(() => {
+    const compact = window.matchMedia('(max-width:820px)');
+    const apply = () => {
+      if (compact.matches) {
+        setOutlineFolded(true);
+        setRightClosed(true);
+      }
+    };
+    apply();
+    compact.addEventListener('change', apply);
+    return () => compact.removeEventListener('change', apply);
+  }, []);
+  useEffect(() => {
+    if (role === 'host' && session?.delivery === 'offline' && view === 'respondents')
+      setView('question');
+  }, [role, session?.delivery, view]);
   const contentRef = useRef<HTMLDivElement>(null);
   const identityKey = `mizzen-fgd-react:observer:${projectId}:${sessionId}`;
 
@@ -93,7 +108,10 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
     setIdentityLoaded(true);
   }, [identityKey, role]);
   useEffect(() => {
-    if (follow && session?.currentQuestionId) setSelectedId(session.currentQuestionId);
+    if (follow && session?.currentQuestionId) {
+      setSelectedId(session.currentQuestionId);
+      contentRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    }
   }, [follow, session?.currentQuestionId]);
 
   if (!ready || !identityLoaded) return <SessionGate state="loading" />;
@@ -173,21 +191,13 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
           session={session}
           selectedId={question?.id || null}
           onSelect={select}
+          onReturn={backToCurrent}
           folded={outlineFolded}
           onFold={() => setOutlineFolded(!outlineFolded)}
           readonly={readonly}
           now={now}
         />
-        <main
-          className={styles.main}
-          ref={contentRef}
-          onScroll={(event) =>
-            setShowReturn(
-              event.currentTarget.scrollTop > 160 ||
-                (!!session.currentQuestionId && question?.id !== session.currentQuestionId),
-            )
-          }
-        >
+        <main className={styles.main} ref={contentRef}>
           {error && (
             <div className={styles.errorBanner} role="alert">
               {error}
@@ -211,9 +221,6 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
             view === 'question' && (
               <div className={styles.browseBanner}>
                 <span>正在自由浏览大纲题目</span>
-                <button type="button" onClick={backToCurrent}>
-                  ↑ 回到主持人当前题
-                </button>
               </div>
             )}
           {view === 'respondents' ? (
@@ -237,17 +244,6 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
               <h2>等待主持人开始题目</h2>
               <p>可在左侧大纲提前浏览本场全部题目，或在右侧向主持人递小纸条。</p>
             </div>
-          )}
-          {(showReturn ||
-            (session.currentQuestionId && question?.id !== session.currentQuestionId)) && (
-            <button
-              className={styles.returnCurrent}
-              onClick={backToCurrent}
-              aria-label="回到当前题"
-              title="回到当前题"
-            >
-              <ArrowUp size={21} />
-            </button>
           )}
         </main>
         <WorkbenchSidePanel
@@ -291,6 +287,7 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
         <ConversationPopover
           session={session}
           type="transcript"
+          readonly
           onClose={() => setConversation(null)}
         />
       )}

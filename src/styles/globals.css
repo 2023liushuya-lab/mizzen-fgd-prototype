@@ -109,9 +109,11 @@ hr {
   border: 0;
   border-top: 1px solid var(--line);
 }
-input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
-select,
-textarea {
+:where(
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+  select,
+  textarea
+) {
   border: 1px solid var(--line);
   border-radius: 7px;
   background: var(--paper);

@@ -207,6 +207,17 @@ export function applyCommand(current: FgdData, command: Command): FgdData {
       } else s.notes.push(command.note);
       break;
     }
+    case 'pin-note': {
+      if (s.phase === 'ended') break;
+      const note = s.notes.find((n) => n.id === command.noteId && n.status !== 'failed');
+      if (!note) break;
+      if (command.pinned)
+        s.notes.forEach((n) => {
+          n.pinned = false;
+        });
+      note.pinned = command.pinned;
+      break;
+    }
     case 'handle-note': {
       const note = s.notes.find((n) => n.id === command.noteId);
       if (note && note.status !== 'failed') note.status = 'handled';

@@ -68,23 +68,25 @@ export default function Setup({ project, session }: { project: Project; session:
               {phaseName[session.phase]}
             </span>
           </div>
-          <div className={styles.editorField}>
-            <label htmlFor="session-name">场次名称</label>
-            <input
-              id="session-name"
-              value={session.title}
-              disabled={!pending}
-              onChange={(e) => patch({ title: e.target.value })}
-            />
+          <div className={styles.editorGrid}>
+            <div className={styles.editorField}>
+              <label htmlFor="session-name">场次名称</label>
+              <input
+                id="session-name"
+                value={session.title}
+                disabled={!pending}
+                onChange={(e) => patch({ title: e.target.value })}
+              />
+            </div>
+            <div className={styles.editorField}>
+              <label htmlFor="session-language">内容语言</label>
+              <input id="session-language" value="简体中文" readOnly />
+            </div>
           </div>
           <div className={styles.editorGrid}>
             <div className={styles.editorField}>
-              <label>内容语言</label>
-              <input value="简体中文" readOnly />
-            </div>
-            <div className={styles.editorField}>
               <label>开展方式</label>
-              <div className={styles.deliverySwitch}>
+              <div className={styles.deliverySwitch} role="group" aria-label="开展方式">
                 <button
                   disabled={!pending}
                   aria-pressed={session.delivery === 'online'}
@@ -105,11 +107,32 @@ export default function Setup({ project, session }: { project: Project; session:
                 </button>
               </div>
             </div>
+            <div className={styles.editorField}>
+              <label>测试方式</label>
+              <div className={styles.deliverySwitch} role="group" aria-label="测试方式">
+                <button
+                  type="button"
+                  disabled={!pending}
+                  aria-pressed={session.testMode !== 'blind'}
+                  className={session.testMode !== 'blind' ? styles.deliveryActive : ''}
+                  onClick={() => patch({ testMode: 'regular' })}
+                >
+                  普通测试
+                </button>
+                <button
+                  type="button"
+                  disabled={!pending}
+                  aria-pressed={session.testMode === 'blind'}
+                  className={session.testMode === 'blind' ? styles.deliveryActive : ''}
+                  onClick={() => patch({ testMode: 'blind' })}
+                >
+                  盲测
+                </button>
+              </div>
+            </div>
           </div>
         </section>
-        <div
-          className={`${styles.setupColumns} ${session.delivery === 'online' ? styles.setupSingle : ''}`}
-        >
+        <div className={`${styles.setupColumns} ${styles.setupSingle}`}>
           <div className={styles.setupLeft}>
             <section className={styles.setupCard}>
               <div className={styles.sectionTitle}>
@@ -166,7 +189,7 @@ export default function Setup({ project, session }: { project: Project; session:
           <div>
             <span className="muted">
               {session.delivery === 'offline' && pending
-                ? `声纹已启用 ${people.filter((p) => p.voiceEnabled).length + (session.hostVoiceEnabled ? 1 : 0)} / ${people.length + 1}（含主持人）`
+                ? `声纹已录制 ${people.filter((p) => p.voiceEnabled).length + (session.hostVoiceEnabled ? 1 : 0)} / ${people.length + 1}（含主持人）`
                 : '场次配置自动保存'}
             </span>
             <Button onClick={enterHost}>

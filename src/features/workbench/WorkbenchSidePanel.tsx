@@ -1,5 +1,5 @@
 'use client';
-import { MessageSquareQuote, PanelRightClose, PanelRightOpen, Check } from 'lucide-react';
+import { MessageSquareQuote, PanelRightClose, PanelRightOpen, Pin } from 'lucide-react';
 import type { Identity, Participant, Session } from '@/types/fgd';
 import { useFgdStore } from '@/stores/fgd-store';
 import { HandQueue } from './HandQueue';
@@ -39,12 +39,12 @@ export function WorkbenchSidePanel({
   handQueueOpen?: boolean;
   onHandQueueClose?: () => void;
 }) {
-  const handleNote = useFgdStore((s) => s.handleNote);
+  const pinNote = useFgdStore((s) => s.pinNote);
   const hostNotes = !readonly
     ? session.notes
         .filter((n) => n.status !== 'failed')
         .slice()
-        .sort((a, b) => b.createdAt - a.createdAt)
+        .sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || b.createdAt - a.createdAt)
     : [];
 
   return (
@@ -74,64 +74,75 @@ export function WorkbenchSidePanel({
               <PanelRightClose size={17} />
             </button>
           </div>
-          <div className={styles.statePane}>
-            {!readonly && (
-              <HandQueue
-                session={session}
-                open={!!handQueueOpen}
-                onClose={() => onHandQueueClose?.()}
-              />
-            )}
-            <SpeakingShare session={session} readonly={readonly} onProfile={onProfile} />
-            <section className={styles.topicDirections}>
-              <div className={styles.topicHead}>
-                <h3>话题追问</h3>
-                <small>
-                  {hostNotes.length + directions.length > 0
-                    ? `${hostNotes.length + directions.length} 条`
-                    : '实时生成'}
-                </small>
-              </div>
-              <div className={styles.topicList}>
-                {hostNotes.map((note) => (
-                  <div key={note.id} className={styles.observerNoteItem}>
-                    <div className={styles.observerNoteHead}>
-                      <span className={styles.observerNoteBadge}>
-                        <MessageSquareQuote size={12} />
-                        旁听小纸条
-                      </span>
-                      <time className={styles.observerNoteTime}>
-                        {formatNoteTime(note.createdAt)}
-                      </time>
-                      {note.status === 'handled' ? (
-                        <span className={styles.observerNoteHandled}>✓ 已处理</span>
-                      ) : (
-                        <button
-                          type="button"
-                          className={styles.observerNoteAction}
-                          onClick={() => handleNote(session.id, note.id)}
-                        >
-                          <Check size={11} />
-                          已读
-                        </button>
-                      )}
+          <div className={`${styles.statePane} ${readonly ? styles.observerPane : ''}`}>
+            <div className={styles.stateOverview}>
+              {!readonly && (
+                <HandQueue
+                  session={session}
+                  open={!!handQueueOpen}
+                  onClose={() => onHandQueueClose?.()}
+                />
+              )}
+              <SpeakingShare session={session} readonly={readonly} onProfile={onProfile} />
+              <section className={styles.topicDirections}>
+                <div className={styles.topicHead}>
+                  <h3>话题追问</h3>
+                  <small>{directions.length > 0 ? `${directions.length} 条` : '实时生成'}</small>
+                </div>
+                <div className={styles.topicList}>
+                  {directions.map((text) => (
+                    <div key={text} className={styles.topicQuestion}>
+                      <span className={styles.topicAiTag}>✧ AI</span>
+                      <span>{text}</span>
                     </div>
-                    <p className={styles.observerNoteBody}>{note.text}</p>
-                  </div>
-                ))}
-                {directions.map((text) => (
-                  <div key={text} className={styles.topicQuestion}>
-                    {!readonly && <span className={styles.topicAiTag}>✧ AI</span>}
-                    <span>{text}</span>
-                  </div>
-                ))}
-                {!hostNotes.length && !directions.length && (
-                  <div className={`${styles.topicQuestion} muted`}>
-                    等待本轮讨论生成新的话题追问…
-                  </div>
-                )}
-              </div>
-            </section>
+                  ))}
+                  {!directions.length && (
+                    <div className={`${styles.topicQuestion} muted`}>
+                      等待本轮讨论生成新的话题追问…
+                    </div>
+                  )}
+                </div>
+              </section>
+            </div>
+            {!readonly && (
+              <section className={styles.hostNotes} aria-label="旁听小纸条">
+                <div className={styles.topicHead}>
+                  <h3>
+                    <MessageSquareQuote size={14} />
+                    小纸条
+                  </h3>
+                  <small>{hostNotes.length} 条</small>
+                </div>
+                <div className={styles.hostNoteList}>
+                  {hostNotes.map((note) => (
+                    <button
+                      key={note.id}
+                      type="button"
+                      className={`${styles.observerNoteItem} ${note.pinned ? styles.pinnedNote : ''}`}
+                      aria-pressed={!!note.pinned}
+                      aria-label={`${note.pinned ? '取消置顶' : '置顶'}小纸条：${note.text}`}
+                      disabled={session.phase === 'ended'}
+                      title={note.pinned ? '取消置顶' : '点击置顶'}
+                      onClick={() => pinNote(session.id, note.id, !note.pinned)}
+                    >
+                      <span className={styles.observerNoteHead}>
+                        <span className={styles.observerNoteBadge}>
+                          {note.observerName || '旁听者'}
+                        </span>
+                        <time className={styles.observerNoteTime}>
+                          {formatNoteTime(note.createdAt)}
+                        </time>
+                        <Pin size={13} fill={note.pinned ? 'currentColor' : 'none'} />
+                      </span>
+                      <span className={styles.observerNoteBody}>{note.text}</span>
+                    </button>
+                  ))}
+                  {!hostNotes.length && (
+                    <p className="muted small">旁听者发来的小纸条会显示在这里</p>
+                  )}
+                </div>
+              </section>
+            )}
             {readonly && identity && <PaperNotes session={session} identity={identity} now={now} />}
           </div>
         </>

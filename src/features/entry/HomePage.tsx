@@ -19,6 +19,9 @@ export default function Home() {
   const [objective, setObjective] = useState('');
   const [search, setSearch] = useState('');
   const [creating, setCreating] = useState(false);
+  const matchingProjects = projects.filter((p) =>
+    p.title.toLowerCase().includes(search.trim().toLowerCase()),
+  );
   const areaParam = params.get('area');
   useEffect(() => {
     setArea(areaParam === 'fgd' ? 'fgd' : 'workspace');
@@ -98,6 +101,9 @@ export default function Home() {
               </div>
               <ArrowRight size={22} />
             </button>
+            <Link className={styles.demoEntry} href="/project?project=project-1">
+              查看完整作答示例 <ArrowRight size={15} />
+            </Link>
           </>
         ) : (
           <>
@@ -137,7 +143,7 @@ export default function Home() {
               </div>
             </section>
             <section className={styles.projects}>
-              <div className={styles.sectionTitle}>
+              <div className={styles.projectListHeader}>
                 <h2>已创建的项目</h2>
                 <div className={styles.search}>
                   <Search size={16} />
@@ -150,27 +156,30 @@ export default function Home() {
                 </div>
               </div>
               <div className={styles.projectGrid}>
-                {projects
-                  .filter((p) => p.title.toLowerCase().includes(search.trim().toLowerCase()))
-                  .map((p) => {
-                    const own = sessions.filter((s) => s.projectId === p.id);
-                    return (
-                      <Link className={styles.projectCard} key={p.id} href={projectUrl(p.id)}>
-                        <span className={styles.fgdBadge}>FGD</span>
-                        <h3>{p.title}</h3>
-                        <p>{p.objective || '焦点小组研究'}</p>
-                        <div>
-                          {own.length} 个场次 · {own.filter((s) => s.phase === 'ended').length}{' '}
-                          场已完成
-                        </div>
-                        <small>
-                          {p.published ? '大纲已发布' : '大纲草稿'}
-                          <ArrowRight size={14} />
-                        </small>
-                      </Link>
-                    );
-                  })}
+                {matchingProjects.map((p) => {
+                  const own = sessions.filter((s) => s.projectId === p.id);
+                  return (
+                    <Link className={styles.projectCard} key={p.id} href={projectUrl(p.id)}>
+                      <span className={styles.fgdBadge}>FGD</span>
+                      <h3>{p.title}</h3>
+                      <p>{p.objective || '焦点小组研究'}</p>
+                      <div>
+                        {own.length} 个场次 · {own.filter((s) => s.phase === 'ended').length}{' '}
+                        场已完成
+                      </div>
+                      <small>
+                        {p.published ? '大纲已发布' : '大纲草稿'}
+                        <ArrowRight size={14} />
+                      </small>
+                    </Link>
+                  );
+                })}
               </div>
+              {projects.length > 0 && matchingProjects.length === 0 && (
+                <Empty title="没有找到匹配的项目">
+                  <p className="muted">试试其他项目名称。</p>
+                </Empty>
+              )}
               {!projects.length && (
                 <Empty title="还没有焦点小组研究">
                   <p className="muted">在上方输入研究目标开始。</p>

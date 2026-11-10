@@ -1,5 +1,6 @@
 'use client';
-import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
+import { ArrowUp, ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
+import { useRef } from 'react';
 import type { Session } from '@/types/fgd';
 import { useFgdStore } from '@/stores/fgd-store';
 import { formatTime } from '@/lib/utils';
@@ -10,6 +11,7 @@ export function OutlinePanel({
   session,
   selectedId,
   onSelect,
+  onReturn,
   folded,
   onFold,
   readonly,
@@ -18,11 +20,13 @@ export function OutlinePanel({
   session: Session;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  onReturn: () => void;
   folded: boolean;
   onFold: () => void;
   readonly: boolean;
   now: number;
 }) {
+  const currentQuestionRef = useRef<HTMLDivElement>(null);
   const move = useFgdStore((s) => s.moveQuestion);
   const questions = session.questions;
   function drop(event: React.DragEvent, sectionId: string, beforeId?: string) {
@@ -77,6 +81,7 @@ export function OutlinePanel({
                 return (
                   <div
                     key={q.id}
+                    ref={live ? currentQuestionRef : undefined}
                     className={`${styles.questionNav} ${selectedId === q.id ? styles.selectedQuestion : ''}`}
                     draggable={!readonly && session.phase !== 'ended'}
                     onDragStart={(e) => {
@@ -117,6 +122,21 @@ export function OutlinePanel({
           );
         })}
       </nav>
+      {session.phase === 'live' && session.currentQuestionId && (
+        <div className={styles.returnArea}>
+          <button
+            className={styles.returnCurrent}
+            aria-label="回到当前题"
+            title={`回到当前题 Q${questionNumber(session, session.currentQuestionId)}`}
+            onClick={() => {
+              onReturn();
+              currentQuestionRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }}
+          >
+            <ArrowUp size={17} />
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

@@ -58,21 +58,6 @@
 .noQuestion p {
   font-size: 12px;
 }
-.returnCurrent {
-  position: fixed;
-  bottom: calc(var(--footer-height) + 66px);
-  left: calc(var(--outline-width) + (100vw - var(--outline-width) - var(--right-width)) / 2);
-  z-index: 15;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid #d5d5cb;
-  background: #fffefa;
-  display: grid;
-  place-items: center;
-  color: #002554;
-  cursor: pointer;
-}
 .errorBanner {
   display: flex;
   justify-content: space-between;
@@ -545,11 +530,6 @@
     width: min(280px, calc(100vw - 48px));
     z-index: 31;
     border-right: 1px solid #dfded7;
-  }
-  .returnCurrent {
-    left: auto;
-    right: 58px;
-    bottom: calc(var(--footer-height) + 54px);
   }
   .reviewBanner {
     height: 42px;

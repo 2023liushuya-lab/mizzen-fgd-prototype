@@ -1,5 +1,7 @@
 'use client';
 import Link from 'next/link';
+import { useEffect } from 'react';
+import { ensureReviewDemo } from '@/features/workbench/review-demo';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, FilePenLine, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +16,12 @@ export default function ProjectPage({ project }: { project: Project }) {
   const sessions = useFgdStore((s) => s.data.sessions).filter((s) => s.projectId === project.id);
   const createSession = useFgdStore((s) => s.createSession);
   const records = params.get('tab') === 'records';
+  useEffect(() => {
+    if (project.id === 'project-1' && !records) {
+      ensureReviewDemo('offline', project.id);
+      ensureReviewDemo('online', project.id);
+    }
+  }, [project.id, records]);
   function addSession() {
     const id = createSession(project.id);
     router.push(setupUrl(project.id, id));
@@ -58,11 +66,16 @@ export default function ProjectPage({ project }: { project: Project }) {
             </thead>
             <tbody>
               {sessions
+                .slice()
+                .sort((a, b) => Number(!!b.demoScenario) - Number(!!a.demoScenario))
                 .filter((s) => !records || s.phase === 'ended')
                 .map((s) => (
                   <tr key={s.id}>
                     <td>
                       <strong>{s.title}</strong>
+                      {s.demoScenario && (
+                        <small className={styles.demoCaption}>完整示例 · 含各题型回答与总结</small>
+                      )}
                     </td>
                     <td>
                       {s.delivery === 'online' ? '线上' : '线下'} ·{' '}

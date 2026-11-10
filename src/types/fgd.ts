@@ -139,6 +139,7 @@ export interface Project {
   createdAt: number;
 }
 export interface Session {
+  demoScenario?: 'full-answers';
   id: string;
   projectId: string;
   title: string;

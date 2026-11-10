@@ -101,6 +101,9 @@ export default function Home() {
               </div>
               <ArrowRight size={22} />
             </button>
+            <Link className={styles.demoEntry} href="/project?project=project-1">
+              查看完整作答示例 <ArrowRight size={15} />
+            </Link>
           </>
         ) : (
           <>

@@ -2,12 +2,15 @@ import { useFgdStore } from '@/stores/fgd-store';
 import { questions, sections } from '@/data/questions';
 import type { Delivery } from '@/types/fgd';
 
-export function createReviewDemo(delivery: Delivery) {
+export function createReviewDemo(delivery: Delivery, projectId?: string) {
   const api = useFgdStore.getState();
-  const project = api.data.projects[0];
+  const project = projectId
+    ? api.data.projects.find((p) => p.id === projectId)!
+    : api.data.projects[0];
   const id = api.createSession(project.id);
   let session = useFgdStore.getState().data.sessions.find((s) => s.id === id)!;
   api.updateSession(id, {
+    demoScenario: 'full-answers',
     title: `演示 · ${delivery === 'offline' ? '线下' : '线上'} · 全题作答与总结`,
     delivery,
     hostVoiceEnabled: true,
@@ -80,4 +83,19 @@ export function createReviewDemo(delivery: Delivery) {
     ],
   });
   return useFgdStore.getState().data.sessions.find((s) => s.id === id)!;
+}
+
+// Normal project entry and the shortcut route resolve the same demonstration session.
+export function ensureReviewDemo(delivery: Delivery, projectId?: string) {
+  const api = useFgdStore.getState();
+  const targetProject = projectId ?? api.data.projects[0].id;
+  return (
+    api.data.sessions.find(
+      (s) =>
+        s.projectId === targetProject &&
+        s.delivery === delivery &&
+        s.demoScenario === 'full-answers' &&
+        s.phase === 'live',
+    ) ?? createReviewDemo(delivery, targetProject)
+  );
 }

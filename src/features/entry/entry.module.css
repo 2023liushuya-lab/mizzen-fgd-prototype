@@ -2002,3 +2002,22 @@
     height: 25px;
   }
 }
+
+.demoCaption {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  color: #879198;
+}
+.demoEntry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: #315b7c;
+  text-decoration: none;
+}
+.demoEntry:hover {
+  text-decoration: underline;
+}

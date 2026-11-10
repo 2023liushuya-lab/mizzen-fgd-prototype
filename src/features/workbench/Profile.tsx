@@ -85,6 +85,19 @@ export function ParticipantStrip({
   const [removePerson, setRemovePerson] = useState<Participant | null>(null);
   const [feedback, setFeedback] = useState('');
   const [cardLeft, setCardLeft] = useState(12);
+  const [activePerson, setActivePerson] = useState<string | null>(null);
+  const [hoverQrs, setHoverQrs] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (session.delivery !== 'offline' || !activePerson) return;
+    let active = true;
+    const url = `${location.origin}${sessionLink('participant', session)}&participant=${encodeURIComponent(activePerson)}`;
+    QRCode.toDataURL(url, { margin: 1, width: 160 }).then((value) => {
+      if (active) setHoverQrs((qrs) => ({ ...qrs, [activePerson]: value }));
+    });
+    return () => {
+      active = false;
+    };
+  }, [session.id, session.projectId, session.delivery, activePerson]);
   const people = session.participants.filter((p) => !p.removed);
   const onlineCount =
     session.delivery === 'offline' ? people.length : people.filter((p) => p.online).length;
@@ -107,7 +120,8 @@ export function ParticipantStrip({
           <div
             key={person.id}
             className={styles.personHover}
-            onMouseEnter={(e) =>
+            onMouseEnter={(e) => {
+              setActivePerson(person.id);
               setCardLeft(
                 Math.max(
                   12,
@@ -116,9 +130,10 @@ export function ParticipantStrip({
                     window.innerWidth - 296,
                   ),
                 ),
-              )
-            }
-            onFocusCapture={(e) =>
+              );
+            }}
+            onFocusCapture={(e) => {
+              setActivePerson(person.id);
               setCardLeft(
                 Math.max(
                   12,
@@ -127,8 +142,8 @@ export function ParticipantStrip({
                     window.innerWidth - 296,
                   ),
                 ),
-              )
-            }
+              );
+            }}
           >
             <button
               className={styles.personAvatarButton}
@@ -179,6 +194,16 @@ export function ParticipantStrip({
                   <dd>{person.notes || backgroundOf(person)}</dd>
                 </div>
               </dl>
+              {session.delivery === 'offline' && (
+                <div className={styles.hoverQr}>
+                  {hoverQrs[person.id] ? (
+                    <img src={hoverQrs[person.id]} alt={`${person.name}个人入场二维码`} />
+                  ) : (
+                    <span>正在生成入场码…</span>
+                  )}
+                  <small>个人入场二维码</small>
+                </div>
+              )}
               {!readonly && session.delivery === 'online' && session.phase !== 'ended' && (
                 <div className={styles.personActions}>
                   <button

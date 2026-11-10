@@ -194,6 +194,9 @@ export const useFgdStore = create<Store>((set, get) => {
         ? { ok: false, error: '网络已离线，草稿已保留，可恢复后重试。', noteId }
         : { ok: true, noteId };
     },
+    pinNote(id, noteId, pinned) {
+      safeCommit({ type: 'pin-note', id, noteId, pinned });
+    },
     handleNote(id, noteId) {
       safeCommit({ type: 'handle-note', id, noteId });
     },

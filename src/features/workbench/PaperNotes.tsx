@@ -115,8 +115,6 @@ export function PaperNotes({
                     </button>
                   )}
                 </>
-              ) : note.status === 'handled' ? (
-                <span className={styles.handled}>✓ 主持人已处理</span>
               ) : (
                 '已送达主持人'
               )}

@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   flex: 1 1 280px;
-  min-height: 230px;
-  background: #ffffff;
+  min-height: 260px;
+  background: #fffaf0;
   border: 1px solid #dfddd4;
   border-radius: 12px;
   overflow: hidden;
@@ -15,7 +15,7 @@
   justify-content: space-between;
   padding: 10px 12px;
   border-bottom: 1px solid #ece8df;
-  background: #faf8f3;
+  background: #faf3e4;
   flex-shrink: 0;
 }
 .notesCardHead strong {
@@ -37,7 +37,7 @@
   padding: 10px 12px;
   flex: 1;
   min-height: 48px;
-  background: #ffffff;
+  background: #fffaf0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -76,7 +76,7 @@
   white-space: nowrap;
 }
 .noteBubble {
-  background: #faf8f3;
+  background: #faf3e4;
   border: 1px solid #e6e2d6;
   border-radius: 10px 10px 3px 10px;
   padding: 9px 11px;
@@ -114,7 +114,7 @@
   flex-shrink: 0;
   padding: 10px 12px;
   border-top: 1px solid #ece8df;
-  background: #faf8f3;
+  background: #faf3e4;
 }
 .noteComposer textarea {
   display: block;
@@ -123,7 +123,7 @@
   height: 68px;
   border: 1px solid #dcd8ce;
   border-radius: 8px;
-  background: #ffffff;
+  background: #fffaf0;
   padding: 8px 10px;
   font-size: 12px;
   line-height: 1.6;

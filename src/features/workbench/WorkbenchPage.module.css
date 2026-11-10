@@ -822,13 +822,10 @@
   flex-shrink: 0;
 }
 .observerPane {
-  overflow: hidden;
+  overflow-y: auto;
 }
 .observerPane > .stateOverview {
-  flex: 0 1 auto;
-  max-height: 42%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  display: contents;
 }
 .observerPane > section:last-child {
   min-height: 230px;
@@ -911,4 +908,59 @@
     align-items: flex-start;
     padding-top: 2px;
   }
+}
+
+.topicDirections {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.topicList {
+  max-height: 150px;
+  overflow-y: auto;
+}
+.hostNotes {
+  display: flex;
+  flex-direction: column;
+  min-height: 140px;
+  padding: 11px 12px;
+  background: #faf3e4;
+  border: 1px solid #e3d1ab;
+  border-radius: 12px;
+}
+.hostNotes h3 {
+  margin: 0;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #7c5d29;
+}
+.hostNoteList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.hostNoteList .observerNoteItem {
+  flex-shrink: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: #8a642b;
+}
+.hostNoteList .observerNoteItem:disabled {
+  cursor: default;
+}
+.pinnedNote {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-color: #b78a41;
+  background: #fff1ce;
+}
+
+.stateOverview {
+  display: contents;
 }

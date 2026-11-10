@@ -32,6 +32,7 @@ export type CommandPayload =
     }
   | { type: 'send-note'; id: string; note: PaperNote }
   | { type: 'handle-note'; id: string; noteId: string }
+  | { type: 'pin-note'; id: string; noteId: string; pinned: boolean }
   | { type: 'send-chat'; id: string; message: ChatMessage }
   | { type: 'request-media'; id: string; request: MediaRequest }
   | { type: 'respond-media'; id: string; requestId: string; accepted: boolean }

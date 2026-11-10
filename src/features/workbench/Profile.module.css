@@ -334,3 +334,21 @@
     height: 24px;
   }
 }
+
+.hoverQr {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e7e6dc;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #879198;
+  font-size: 11px;
+  min-height: 100px;
+}
+.hoverQr img {
+  width: 104px;
+  height: 104px;
+  flex-shrink: 0;
+  border-radius: 6px;
+}

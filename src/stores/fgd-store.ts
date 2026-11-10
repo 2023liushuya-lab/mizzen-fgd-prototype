@@ -112,7 +112,7 @@ export const useFgdStore = create<Store>((set, get) => {
       const people = s.participants.filter((p) => !p.removed);
       if (!people.length) return { ok: false, error: '请先导入或添加受访者' };
       if (s.delivery === 'offline' && (!s.hostVoiceEnabled || people.some((p) => !p.voiceEnabled)))
-        return { ok: false, error: '请先启用主持人与所有受访者的声纹' };
+        return { ok: false, error: '请先录制主持人与所有受访者的声纹' };
       safeCommit({ type: 'start-session', id });
       return { ok: true };
     },

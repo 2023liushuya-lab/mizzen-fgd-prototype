@@ -20,6 +20,7 @@ import type { Participant, Project, Session } from '@/types/fgd';
 import { Notice, LinkField, projectUrl, outlineUrl, phaseName } from './shared';
 import RosterEditor from './RosterEditor';
 import SeatSetup from './SeatSetup';
+import { blindTerms } from '@/lib/participant-materials';
 import styles from './entry.module.css';
 export default function Setup({ project, session }: { project: Project; session: Session }) {
   const router = useRouter();
@@ -106,10 +107,45 @@ export default function Setup({ project, session }: { project: Project; session:
               </div>
             </div>
           </div>
+          <div className={styles.editorField} style={{ marginTop: 16 }}>
+            <label>测试方式</label>
+            <div className={styles.deliverySwitch} role="group" aria-label="测试方式">
+              <button
+                type="button"
+                disabled={!pending}
+                aria-pressed={session.testMode !== 'blind'}
+                className={session.testMode !== 'blind' ? styles.deliveryActive : ''}
+                onClick={() => patch({ testMode: 'regular' })}
+              >
+                普通测试
+              </button>
+              <button
+                type="button"
+                disabled={!pending}
+                aria-pressed={session.testMode === 'blind'}
+                className={session.testMode === 'blind' ? styles.deliveryActive : ''}
+                onClick={() => patch({ testMode: 'blind' })}
+              >
+                盲测
+              </button>
+            </div>
+            {session.testMode === 'blind' && (
+              <div className={styles.editorField} style={{ marginTop: 12 }}>
+                <label htmlFor="blind-labels">隐藏的品牌／产品名称</label>
+                <input
+                  id="blind-labels"
+                  disabled={!pending}
+                  value={(session.blindLabels ?? blindTerms(session)).join('，')}
+                  onChange={(e) => patch({ blindLabels: e.target.value.split(/[，,、\n]/) })}
+                />
+                <small className="muted">
+                  用逗号分隔，受访者端以样品代号显示。图片材料请使用无品牌版本。
+                </small>
+              </div>
+            )}
+          </div>
         </section>
-        <div
-          className={`${styles.setupColumns} ${session.delivery === 'online' ? styles.setupSingle : ''}`}
-        >
+        <div className={`${styles.setupColumns} ${styles.setupSingle}`}>
           <div className={styles.setupLeft}>
             <section className={styles.setupCard}>
               <div className={styles.sectionTitle}>
@@ -166,7 +202,7 @@ export default function Setup({ project, session }: { project: Project; session:
           <div>
             <span className="muted">
               {session.delivery === 'offline' && pending
-                ? `声纹已启用 ${people.filter((p) => p.voiceEnabled).length + (session.hostVoiceEnabled ? 1 : 0)} / ${people.length + 1}（含主持人）`
+                ? `声纹已录制 ${people.filter((p) => p.voiceEnabled).length + (session.hostVoiceEnabled ? 1 : 0)} / ${people.length + 1}（含主持人）`
                 : '场次配置自动保存'}
             </span>
             <Button onClick={enterHost}>

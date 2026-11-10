@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { ArrowRight, FilePenLine, Plus, MoreHorizontal } from 'lucide-react';
+import { ArrowRight, FilePenLine, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { useFgdStore } from '@/stores/fgd-store';
@@ -32,12 +32,6 @@ export default function ProjectPage({ project }: { project: Project }) {
             <p className="muted">{project.objective}</p>
           </div>
           <div className="row">
-            <Button variant="outline" asChild>
-              <Link href={outlineUrl(project.id)}>
-                <FilePenLine size={15} />
-                编辑大纲
-              </Link>
-            </Button>
             {!records && (
               <Button onClick={addSession}>
                 <Plus size={16} />
@@ -75,7 +69,10 @@ export default function ProjectPage({ project }: { project: Project }) {
                     <td>
                       <strong>{s.title}</strong>
                     </td>
-                    <td>{s.delivery === 'online' ? '线上' : '线下'} · 常规访谈</td>
+                    <td>
+                      {s.delivery === 'online' ? '线上' : '线下'} ·{' '}
+                      {s.testMode === 'blind' ? '盲测' : '普通测试'}
+                    </td>
                     <td>{s.participants.filter((p) => !p.removed).length} 人</td>
                     <td>
                       <span className={`${styles.phase} ${styles[s.phase]}`}>
@@ -94,15 +91,6 @@ export default function ProjectPage({ project }: { project: Project }) {
                         <button onClick={() => setObserver(s)}>
                           {s.phase === 'ended' ? '旁听复盘' : '旁听室链接'}
                         </button>
-                        {s.phase !== 'pending' && (
-                          <Link
-                            href={setupUrl(project.id, s.id)}
-                            aria-label={`查看${s.title}配置`}
-                            className={styles.subtleAction}
-                          >
-                            <MoreHorizontal size={17} />
-                          </Link>
-                        )}
                       </div>
                     </td>
                   </tr>

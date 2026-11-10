@@ -5,7 +5,13 @@ import styles from './questions.module.css';
 export const markColors = { like: '#386db7', dislike: '#c75d57', confused: '#c7a343' };
 export const markLabels = { like: '喜欢', dislike: '不喜欢', confused: '困惑' };
 
-export function ConceptArtwork() {
+export function ConceptArtwork({
+  blind = false,
+  sampleLabel = '样品 A',
+}: {
+  blind?: boolean;
+  sampleLabel?: string;
+}) {
   return (
     <g>
       <rect width="800" height="500" fill="#f5f4ef" />
@@ -13,7 +19,7 @@ export function ConceptArtwork() {
         CONCEPT 01 / 概念示意
       </text>
       <text x="45" y="98" fontSize="30" fill="#002554" fontWeight="600">
-        冰绽凝霜
+        {blind ? sampleLabel : '冰绽凝霜'}
       </text>
       <text x="45" y="130" fontSize="15" fill="#6e7881">
         轻盈的日常保湿体验
@@ -21,10 +27,10 @@ export function ConceptArtwork() {
       <rect x="63" y="211" width="182" height="177" rx="30" fill="#dce6e4" />
       <rect x="69" y="194" width="170" height="43" rx="10" fill="#fffefa" stroke="#c7cfcb" />
       <text x="101" y="293" fontSize="20" fill="#30565c">
-        HYDRA
+        {blind ? sampleLabel.split(' ').at(-1) : 'HYDRA'}
       </text>
       <text x="99" y="322" fontSize="11" fill="#587178">
-        DAILY CREAM
+        {blind ? '' : 'DAILY CREAM'}
       </text>
       <text x="322" y="230" fontSize="27" fill="#002554">
         清爽不黏
@@ -116,11 +122,15 @@ export function ConceptCanvas({
   people = [],
   image,
   onClick,
+  blind = false,
+  sampleLabel,
 }: {
   marks?: Mark[];
   people?: Participant[];
   image?: string;
   onClick?: () => void;
+  blind?: boolean;
+  sampleLabel?: string;
 }) {
   return (
     <svg
@@ -140,7 +150,7 @@ export function ConceptCanvas({
           preserveAspectRatio="xMidYMid meet"
         />
       ) : (
-        <ConceptArtwork />
+        <ConceptArtwork blind={blind} sampleLabel={sampleLabel} />
       )}
       <MarkShapes marks={marks} people={people} />
     </svg>

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MessageSquare, Send, X } from 'lucide-react';
 import { useFgdStore } from '@/stores/fgd-store';
 import { formatTime } from '@/lib/utils';
@@ -58,11 +58,20 @@ export function ConversationPopover({
   session,
   type,
   onClose,
+  readonly = false,
 }: {
   session: Session;
+  readonly?: boolean;
   type: 'chat' | 'transcript';
   onClose: () => void;
 }) {
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, [onClose]);
   const sendChat = useFgdStore((s) => s.sendChat);
   const [text, setText] = useState('');
   function submit(event: React.FormEvent) {
@@ -89,7 +98,7 @@ export function ConversationPopover({
         </button>
       </div>
       {type === 'transcript' ? (
-        <TranscriptList session={session} />
+        <TranscriptList session={session} readonly={readonly} />
       ) : (
         <>
           <div className={styles.chatMessages} aria-live="polite">

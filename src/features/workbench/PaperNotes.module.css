@@ -1,8 +1,8 @@
 .notesCard {
   display: flex;
   flex-direction: column;
-  flex: 1 0 300px;
-  min-height: 300px;
+  flex: 1 1 280px;
+  min-height: 230px;
   background: #ffffff;
   border: 1px solid #dfddd4;
   border-radius: 12px;
@@ -36,7 +36,7 @@
   overscroll-behavior: contain;
   padding: 10px 12px;
   flex: 1;
-  min-height: 120px;
+  min-height: 48px;
   background: #ffffff;
   display: flex;
   flex-direction: column;
@@ -157,4 +157,20 @@
   color: #a55646;
   margin: 6px 0 0;
   line-height: 1.6;
+}
+
+.notesCardHead strong {
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 3px 6px;
+}
+.notesPrivacy {
+  white-space: nowrap;
+}
+.notesCardHead > .badge {
+  flex-shrink: 0;
+}
+.noteMeta strong,
+.noteStatus {
+  overflow-wrap: anywhere;
 }

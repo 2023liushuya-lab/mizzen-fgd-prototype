@@ -84,11 +84,10 @@ export function ParticipantStrip({
   const remove = useFgdStore((s) => s.removeParticipant);
   const [removePerson, setRemovePerson] = useState<Participant | null>(null);
   const [feedback, setFeedback] = useState('');
+  const [cardLeft, setCardLeft] = useState(12);
   const people = session.participants.filter((p) => !p.removed);
   const onlineCount =
-    session.delivery === 'offline'
-      ? people.length
-      : people.filter((p) => p.online).length || people.length;
+    session.delivery === 'offline' ? people.length : people.filter((p) => p.online).length;
   function media(person: Participant, kind: 'mic' | 'camera') {
     const enabled = !person[kind];
     request(session.id, person.id, kind, enabled);
@@ -105,7 +104,32 @@ export function ParticipantStrip({
         const seatNo = (seatIdx >= 0 ? seatIdx : index) + 1;
         const isOnline = person.online || session.delivery === 'offline';
         return (
-          <div key={person.id} className={styles.personHover}>
+          <div
+            key={person.id}
+            className={styles.personHover}
+            onMouseEnter={(e) =>
+              setCardLeft(
+                Math.max(
+                  12,
+                  Math.min(
+                    e.currentTarget.getBoundingClientRect().left - 4,
+                    window.innerWidth - 296,
+                  ),
+                ),
+              )
+            }
+            onFocusCapture={(e) =>
+              setCardLeft(
+                Math.max(
+                  12,
+                  Math.min(
+                    e.currentTarget.getBoundingClientRect().left - 4,
+                    window.innerWidth - 296,
+                  ),
+                ),
+              )
+            }
+          >
             <button
               className={styles.personAvatarButton}
               aria-label={`查看${person.name}的背景信息`}
@@ -116,6 +140,7 @@ export function ParticipantStrip({
             </button>
             <div
               className={styles.personHoverCard}
+              style={{ left: cardLeft }}
               role="group"
               aria-label={`${person.name}资料与操作`}
             >

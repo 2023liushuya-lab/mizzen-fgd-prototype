@@ -61,6 +61,22 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
       setRightClosed(false);
     }
   }, [handKey, role]);
+  useEffect(() => {
+    const compact = window.matchMedia('(max-width:820px)');
+    const apply = () => {
+      if (compact.matches) {
+        setOutlineFolded(true);
+        setRightClosed(true);
+      }
+    };
+    apply();
+    compact.addEventListener('change', apply);
+    return () => compact.removeEventListener('change', apply);
+  }, []);
+  useEffect(() => {
+    if (role === 'host' && session?.delivery === 'offline' && view === 'respondents')
+      setView('question');
+  }, [role, session?.delivery, view]);
   const contentRef = useRef<HTMLDivElement>(null);
   const identityKey = `mizzen-fgd-react:observer:${projectId}:${sessionId}`;
 
@@ -93,7 +109,11 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
     setIdentityLoaded(true);
   }, [identityKey, role]);
   useEffect(() => {
-    if (follow && session?.currentQuestionId) setSelectedId(session.currentQuestionId);
+    if (follow && session?.currentQuestionId) {
+      setSelectedId(session.currentQuestionId);
+      setShowReturn(false);
+      contentRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    }
   }, [follow, session?.currentQuestionId]);
 
   if (!ready || !identityLoaded) return <SessionGate state="loading" />;
@@ -120,6 +140,7 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
   function backToCurrent() {
     if (!session?.currentQuestionId) return;
     setSelectedId(session.currentQuestionId);
+    setShowReturn(false);
     setFollow(true);
     setView('question');
     contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -181,12 +202,7 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
         <main
           className={styles.main}
           ref={contentRef}
-          onScroll={(event) =>
-            setShowReturn(
-              event.currentTarget.scrollTop > 160 ||
-                (!!session.currentQuestionId && question?.id !== session.currentQuestionId),
-            )
-          }
+          onScroll={(event) => setShowReturn(event.currentTarget.scrollTop > 160)}
         >
           {error && (
             <div className={styles.errorBanner} role="alert">
@@ -291,6 +307,7 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
         <ConversationPopover
           session={session}
           type="transcript"
+          readonly
           onClose={() => setConversation(null)}
         />
       )}

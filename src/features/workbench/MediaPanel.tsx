@@ -1,5 +1,7 @@
 'use client';
-import { Video, VideoOff, Hand } from 'lucide-react';
+import { useState } from 'react';
+import { Modal } from '@/components/ui/modal';
+import { Video, VideoOff, MicOff, Hand, Maximize2 } from 'lucide-react';
 import type { Participant, Session } from '@/types/fgd';
 import { Avatar } from './Profile';
 import styles from './MediaPanel.module.css';
@@ -99,6 +101,7 @@ export function MediaPanel({
   attendance?: 'arrived' | 'absent';
 }) {
   const offline = session.delivery === 'offline';
+  const [full, setFull] = useState(false);
   function mediaContent() {
     if (session.phase === 'ended')
       return (
@@ -110,9 +113,17 @@ export function MediaPanel({
       );
     if (offline)
       return (
-        <div className={styles.panoramaWrap}>
+        <button
+          type="button"
+          className={styles.panoramaWrap}
+          aria-label="放大现场画面"
+          onClick={() => setFull(true)}
+        >
           <Panorama session={session} />
-        </div>
+          <span className={styles.panoramaExpand}>
+            <Maximize2 size={17} />
+          </span>
+        </button>
       );
     return (
       <div className={`${styles.videoList} ${large ? styles.videoGrid : ''}`}>
@@ -121,7 +132,8 @@ export function MediaPanel({
             <span className={styles.hostAvatar}>主</span>
             <div className={styles.videoTileLabel}>
               <span>主持人</span>
-              <Video size={13} />
+              {!session.hostMic && <MicOff size={13} />}
+              {session.hostCamera ? <Video size={13} /> : <VideoOff size={13} />}
             </div>
           </div>
         )}
@@ -138,6 +150,9 @@ export function MediaPanel({
   return (
     <section className={`${styles.mediaPanel} ${large ? styles.mediaPanelLarge : ''}`}>
       {mediaContent()}
+      <Modal open={full} onOpenChange={setFull} title="现场画面" wide>
+        <Panorama session={session} />
+      </Modal>
     </section>
   );
 }

@@ -74,64 +74,66 @@ export function WorkbenchSidePanel({
               <PanelRightClose size={17} />
             </button>
           </div>
-          <div className={styles.statePane}>
-            {!readonly && (
-              <HandQueue
-                session={session}
-                open={!!handQueueOpen}
-                onClose={() => onHandQueueClose?.()}
-              />
-            )}
-            <SpeakingShare session={session} readonly={readonly} onProfile={onProfile} />
-            <section className={styles.topicDirections}>
-              <div className={styles.topicHead}>
-                <h3>话题追问</h3>
-                <small>
-                  {hostNotes.length + directions.length > 0
-                    ? `${hostNotes.length + directions.length} 条`
-                    : '实时生成'}
-                </small>
-              </div>
-              <div className={styles.topicList}>
-                {hostNotes.map((note) => (
-                  <div key={note.id} className={styles.observerNoteItem}>
-                    <div className={styles.observerNoteHead}>
-                      <span className={styles.observerNoteBadge}>
-                        <MessageSquareQuote size={12} />
-                        旁听小纸条
-                      </span>
-                      <time className={styles.observerNoteTime}>
-                        {formatNoteTime(note.createdAt)}
-                      </time>
-                      {note.status === 'handled' ? (
-                        <span className={styles.observerNoteHandled}>✓ 已处理</span>
-                      ) : (
-                        <button
-                          type="button"
-                          className={styles.observerNoteAction}
-                          onClick={() => handleNote(session.id, note.id)}
-                        >
-                          <Check size={11} />
-                          已读
-                        </button>
-                      )}
+          <div className={`${styles.statePane} ${readonly ? styles.observerPane : ''}`}>
+            <div className={styles.stateOverview}>
+              {!readonly && (
+                <HandQueue
+                  session={session}
+                  open={!!handQueueOpen}
+                  onClose={() => onHandQueueClose?.()}
+                />
+              )}
+              <SpeakingShare session={session} readonly={readonly} onProfile={onProfile} />
+              <section className={styles.topicDirections}>
+                <div className={styles.topicHead}>
+                  <h3>话题追问</h3>
+                  <small>
+                    {hostNotes.length + directions.length > 0
+                      ? `${hostNotes.length + directions.length} 条`
+                      : '实时生成'}
+                  </small>
+                </div>
+                <div className={styles.topicList}>
+                  {hostNotes.map((note) => (
+                    <div key={note.id} className={styles.observerNoteItem}>
+                      <div className={styles.observerNoteHead}>
+                        <span className={styles.observerNoteBadge}>
+                          <MessageSquareQuote size={12} />
+                          旁听小纸条
+                        </span>
+                        <time className={styles.observerNoteTime}>
+                          {formatNoteTime(note.createdAt)}
+                        </time>
+                        {note.status === 'handled' ? (
+                          <span className={styles.observerNoteHandled}>✓ 已处理</span>
+                        ) : (
+                          <button
+                            type="button"
+                            className={styles.observerNoteAction}
+                            onClick={() => handleNote(session.id, note.id)}
+                          >
+                            <Check size={11} />
+                            已读
+                          </button>
+                        )}
+                      </div>
+                      <p className={styles.observerNoteBody}>{note.text}</p>
                     </div>
-                    <p className={styles.observerNoteBody}>{note.text}</p>
-                  </div>
-                ))}
-                {directions.map((text) => (
-                  <div key={text} className={styles.topicQuestion}>
-                    {!readonly && <span className={styles.topicAiTag}>✧ AI</span>}
-                    <span>{text}</span>
-                  </div>
-                ))}
-                {!hostNotes.length && !directions.length && (
-                  <div className={`${styles.topicQuestion} muted`}>
-                    等待本轮讨论生成新的话题追问…
-                  </div>
-                )}
-              </div>
-            </section>
+                  ))}
+                  {directions.map((text) => (
+                    <div key={text} className={styles.topicQuestion}>
+                      {!readonly && <span className={styles.topicAiTag}>✧ AI</span>}
+                      <span>{text}</span>
+                    </div>
+                  ))}
+                  {!hostNotes.length && !directions.length && (
+                    <div className={`${styles.topicQuestion} muted`}>
+                      等待本轮讨论生成新的话题追问…
+                    </div>
+                  )}
+                </div>
+              </section>
+            </div>
             {readonly && identity && <PaperNotes session={session} identity={identity} now={now} />}
           </div>
         </>

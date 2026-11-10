@@ -26,6 +26,7 @@ import { Button } from '@/components/ui/button';
 import { useFgdStore } from '@/stores/fgd-store';
 import { useClock } from '@/hooks/use-clock';
 import { formatTime } from '@/lib/utils';
+import { participantMaterials, restoreParticipantValue } from '@/lib/participant-materials';
 import type { Participant, Session } from '@/types/fgd';
 import styles from './participant.module.css';
 export function ParticipantRoom({
@@ -37,6 +38,8 @@ export function ParticipantRoom({
   person: Participant;
   onLeave: () => void;
 }) {
+  const originalSession = session;
+  session = participantMaterials(session);
   const setHand = useFgdStore((s) => s.setHand);
   const [meetingInfo, setMeetingInfo] = useState(false);
   const setMedia = useFgdStore((s) => s.setParticipantMedia),
@@ -53,6 +56,27 @@ export function ParticipantRoom({
     [leaving, setLeaving] = useState(false),
     [projectionClosed, setProjectionClosed] = useState<number | null>(null),
     [videoPerson, setVideoPerson] = useState<Participant | null>(null);
+  useEffect(() => {
+    const compact = window.matchMedia('(max-width:700px)');
+    const apply = () => setRightOpen(!compact.matches);
+    apply();
+    compact.addEventListener('change', apply);
+    return () => compact.removeEventListener('change', apply);
+  }, []);
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setConversation(null);
+        setMeetingInfo(false);
+      }
+    };
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, []);
+  const questionAreaRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    questionAreaRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [session.currentQuestionId]);
   const projectionRef = useRef<HTMLElement>(null);
   const question = session.questions.find((q) => q.id === session.currentQuestionId),
     request = session.mediaRequests.find(
@@ -136,7 +160,7 @@ export function ParticipantRoom({
         </time>
       </header>
       <div className={`${styles.roomBody} ${!rightOpen ? styles.rightClosed : ''}`}>
-        <main className={styles.questionArea}>
+        <main className={styles.questionArea} ref={questionAreaRef}>
           {ended ? (
             <div className={styles.waiting}>
               <span>✓</span>
@@ -159,7 +183,12 @@ export function ParticipantRoom({
                 session={session}
                 question={question}
                 participantId={person.id}
-                onSubmit={(answer) => submit(session.id, question.id, answer)}
+                onSubmit={(answer) =>
+                  submit(session.id, question.id, {
+                    ...answer,
+                    value: restoreParticipantValue(originalSession, answer.value),
+                  })
+                }
               />
             </>
           ) : (
@@ -262,7 +291,10 @@ export function ParticipantRoom({
             aria-label={person.handRaisedAt ? '取消举手' : '举手'}
             aria-pressed={!!person.handRaisedAt}
             disabled={session.phase !== 'live'}
-            onClick={() => setHand(session.id, person.id, !person.handRaisedAt)}
+            onClick={() => {
+              setConversation(null);
+              setHand(session.id, person.id, !person.handRaisedAt);
+            }}
           >
             <Hand size={18} />
             <span>{person.handRaisedAt ? '已举手' : '举手'}</span>

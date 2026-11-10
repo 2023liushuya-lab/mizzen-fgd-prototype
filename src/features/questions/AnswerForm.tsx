@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import type { Answer, AnswerValue, Mark, Question, Session } from '@/types/fgd';
 import { MarkLegend } from './ConceptCanvas';
 import { AnnotationEditor } from './AnnotationEditor';
+import { participantMaterialText } from '@/lib/participant-materials';
 import { compactImage } from './image-upload';
 import { StructuredFields } from './StructuredFields';
 import styles from './questions.module.css';
@@ -232,6 +233,12 @@ export function AnswerForm({ session, question, participantId, onSubmit }: Answe
               <>
                 <div className={styles.imageFilename}>{filename}</div>
                 <AnnotationEditor
+                  blind={session.testMode === 'blind'}
+                  sampleLabel={
+                    participantMaterialText(session, '冰绽凝霜') === '冰绽凝霜'
+                      ? '样品 A'
+                      : participantMaterialText(session, '冰绽凝霜')
+                  }
                   participantId={participantId}
                   marks={marks}
                   onChange={(next) => {
@@ -249,6 +256,12 @@ export function AnswerForm({ session, question, participantId, onSubmit }: Answe
           <>
             <MarkLegend />
             <AnnotationEditor
+              blind={session.testMode === 'blind'}
+              sampleLabel={
+                participantMaterialText(session, '冰绽凝霜') === '冰绽凝霜'
+                  ? '样品 A'
+                  : participantMaterialText(session, '冰绽凝霜')
+              }
               participantId={participantId}
               marks={marks}
               onChange={(next) => {

@@ -11,11 +11,15 @@ export function AnnotationEditor({
   marks,
   onChange,
   image,
+  blind = false,
+  sampleLabel,
 }: {
   participantId: string;
   marks: Mark[];
   onChange: (marks: Mark[]) => void;
   image?: string;
+  blind?: boolean;
+  sampleLabel?: string;
 }) {
   const [color, setColor] = useState<MarkColor>('like');
   const [draft, setDraft] = useState<Mark | null>(null);
@@ -107,7 +111,7 @@ export function AnnotationEditor({
             preserveAspectRatio="xMidYMid meet"
           />
         ) : (
-          <ConceptArtwork />
+          <ConceptArtwork blind={blind} sampleLabel={sampleLabel} />
         )}
         <MarkShapes
           marks={draft ? [...marks, draft] : marks}

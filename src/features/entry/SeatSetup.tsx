@@ -123,19 +123,6 @@ export default function SeatSetup({
             <small>主持人</small>
           </div>
         </div>
-        <div className={styles.hostVoiceRow}>
-          <span>主持人声纹</span>
-          <button
-            type="button"
-            className={`${styles.voiceState} ${session.hostVoiceEnabled ? styles.voiceEnabled : ''}`}
-            disabled={!pending}
-            aria-pressed={!!session.hostVoiceEnabled}
-            onClick={() => patch({ hostVoiceEnabled: !session.hostVoiceEnabled })}
-          >
-            {session.hostVoiceEnabled ? <Check size={13} /> : <span className={styles.statusDot} />}
-            {session.hostVoiceEnabled ? '已启用' : '待启用'}
-          </button>
-        </div>
       </section>
       <Modal
         open={!!qrPerson}

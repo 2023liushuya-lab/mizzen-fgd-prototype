@@ -142,6 +142,8 @@ export interface Session {
   projectId: string;
   title: string;
   delivery: Delivery;
+  testMode?: 'regular' | 'blind';
+  blindLabels?: string[];
   roomCode: string;
   observerToken: string;
   phase: Phase;

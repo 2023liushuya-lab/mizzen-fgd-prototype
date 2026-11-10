@@ -69,23 +69,25 @@ export default function Setup({ project, session }: { project: Project; session:
               {phaseName[session.phase]}
             </span>
           </div>
-          <div className={styles.editorField}>
-            <label htmlFor="session-name">场次名称</label>
-            <input
-              id="session-name"
-              value={session.title}
-              disabled={!pending}
-              onChange={(e) => patch({ title: e.target.value })}
-            />
+          <div className={styles.editorGrid}>
+            <div className={styles.editorField}>
+              <label htmlFor="session-name">场次名称</label>
+              <input
+                id="session-name"
+                value={session.title}
+                disabled={!pending}
+                onChange={(e) => patch({ title: e.target.value })}
+              />
+            </div>
+            <div className={styles.editorField}>
+              <label htmlFor="session-language">内容语言</label>
+              <input id="session-language" value="简体中文" readOnly />
+            </div>
           </div>
           <div className={styles.editorGrid}>
             <div className={styles.editorField}>
-              <label>内容语言</label>
-              <input value="简体中文" readOnly />
-            </div>
-            <div className={styles.editorField}>
               <label>开展方式</label>
-              <div className={styles.deliverySwitch}>
+              <div className={styles.deliverySwitch} role="group" aria-label="开展方式">
                 <button
                   disabled={!pending}
                   aria-pressed={session.delivery === 'online'}
@@ -106,44 +108,44 @@ export default function Setup({ project, session }: { project: Project; session:
                 </button>
               </div>
             </div>
-          </div>
-          <div className={styles.editorField} style={{ marginTop: 16 }}>
-            <label>测试方式</label>
-            <div className={styles.deliverySwitch} role="group" aria-label="测试方式">
-              <button
-                type="button"
-                disabled={!pending}
-                aria-pressed={session.testMode !== 'blind'}
-                className={session.testMode !== 'blind' ? styles.deliveryActive : ''}
-                onClick={() => patch({ testMode: 'regular' })}
-              >
-                普通测试
-              </button>
-              <button
-                type="button"
-                disabled={!pending}
-                aria-pressed={session.testMode === 'blind'}
-                className={session.testMode === 'blind' ? styles.deliveryActive : ''}
-                onClick={() => patch({ testMode: 'blind' })}
-              >
-                盲测
-              </button>
-            </div>
-            {session.testMode === 'blind' && (
-              <div className={styles.editorField} style={{ marginTop: 12 }}>
-                <label htmlFor="blind-labels">隐藏的品牌／产品名称</label>
-                <input
-                  id="blind-labels"
+            <div className={styles.editorField}>
+              <label>测试方式</label>
+              <div className={styles.deliverySwitch} role="group" aria-label="测试方式">
+                <button
+                  type="button"
                   disabled={!pending}
-                  value={(session.blindLabels ?? blindTerms(session)).join('，')}
-                  onChange={(e) => patch({ blindLabels: e.target.value.split(/[，,、\n]/) })}
-                />
-                <small className="muted">
-                  用逗号分隔，受访者端以样品代号显示。图片材料请使用无品牌版本。
-                </small>
+                  aria-pressed={session.testMode !== 'blind'}
+                  className={session.testMode !== 'blind' ? styles.deliveryActive : ''}
+                  onClick={() => patch({ testMode: 'regular' })}
+                >
+                  普通测试
+                </button>
+                <button
+                  type="button"
+                  disabled={!pending}
+                  aria-pressed={session.testMode === 'blind'}
+                  className={session.testMode === 'blind' ? styles.deliveryActive : ''}
+                  onClick={() => patch({ testMode: 'blind' })}
+                >
+                  盲测
+                </button>
               </div>
-            )}
+            </div>
           </div>
+          {session.testMode === 'blind' && (
+            <div className={styles.editorField} style={{ marginTop: 16 }}>
+              <label htmlFor="blind-labels">隐藏的品牌／产品名称</label>
+              <input
+                id="blind-labels"
+                disabled={!pending}
+                value={(session.blindLabels ?? blindTerms(session)).join('，')}
+                onChange={(e) => patch({ blindLabels: e.target.value.split(/[，,、\n]/) })}
+              />
+              <small className="muted">
+                用逗号分隔，受访者端以样品代号显示。图片材料请使用无品牌版本。
+              </small>
+            </div>
+          )}
         </section>
         <div className={`${styles.setupColumns} ${styles.setupSingle}`}>
           <div className={styles.setupLeft}>

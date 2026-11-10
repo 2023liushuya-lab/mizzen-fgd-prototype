@@ -504,6 +504,10 @@
 .sessionTable td:last-child {
   width: 29%;
 }
+.sessionTable th:last-child,
+.sessionTable td:last-child {
+  text-align: center;
+}
 .phase {
   display: inline-flex;
   border-radius: 5px;
@@ -528,6 +532,7 @@
 .tableActions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 22px;
 }
 .tableActions a,

@@ -1,22 +1,18 @@
 'use client';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
 import { ArrowRight, FilePenLine, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
 import { useFgdStore } from '@/stores/fgd-store';
 import { sessionLink } from '@/lib/utils';
-import type { Project, Session } from '@/types/fgd';
-import { EntryHeader, Empty, Notice, LinkField, outlineUrl, setupUrl, phaseName } from './shared';
+import type { Project } from '@/types/fgd';
+import { EntryHeader, Empty, outlineUrl, setupUrl, phaseName } from './shared';
 import styles from './entry.module.css';
 export default function ProjectPage({ project }: { project: Project }) {
   const router = useRouter();
   const params = useSearchParams();
   const sessions = useFgdStore((s) => s.data.sessions).filter((s) => s.projectId === project.id);
   const createSession = useFgdStore((s) => s.createSession);
-  const [message, setMessage] = useState('');
-  const [observer, setObserver] = useState<Session | null>(null);
   const records = params.get('tab') === 'records';
   function addSession() {
     const id = createSession(project.id);
@@ -49,7 +45,6 @@ export default function ProjectPage({ project }: { project: Project }) {
             </Link>
           </div>
         )}
-        <Notice>{message}</Notice>
         <div className={styles.sessionTable}>
           <table>
             <thead>
@@ -88,9 +83,13 @@ export default function ProjectPage({ project }: { project: Project }) {
                             {s.phase === 'ended' ? '查看记录' : '进入主持台'}
                           </Link>
                         )}
-                        <button onClick={() => setObserver(s)}>
-                          {s.phase === 'ended' ? '旁听复盘' : '旁听室链接'}
-                        </button>
+                        <a
+                          href={sessionLink('observer', s)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          旁听室
+                        </a>
                       </div>
                     </td>
                   </tr>
@@ -109,26 +108,6 @@ export default function ProjectPage({ project }: { project: Project }) {
           )}
         </div>
       </main>
-      <Modal
-        open={!!observer}
-        onOpenChange={(open) => !open && setObserver(null)}
-        title="旁听室链接"
-      >
-        {observer && (
-          <>
-            <p className="muted">
-              {observer.title} · {phaseName[observer.phase]}
-            </p>
-            <p>独立旁听入口，仅查看研究内容，通过小纸条向主持人提问。</p>
-            <LinkField session={observer} role="observer" onMessage={setMessage} />
-            <div className={styles.modalFooter}>
-              <Button onClick={() => setObserver(null)} variant="outline">
-                关闭
-              </Button>
-            </div>
-          </>
-        )}
-      </Modal>
     </div>
   );
 }

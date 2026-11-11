@@ -218,6 +218,11 @@ export function applyCommand(current: FgdData, command: Command): FgdData {
       note.pinned = command.pinned;
       break;
     }
+    case 'read-note': {
+      const note = s.notes.find((n) => n.id === command.noteId && n.status !== 'failed');
+      if (note && !note.readAt) note.readAt = command.at;
+      break;
+    }
     case 'handle-note': {
       const note = s.notes.find((n) => n.id === command.noteId);
       if (note && note.status !== 'failed') note.status = 'handled';

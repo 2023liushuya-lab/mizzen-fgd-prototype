@@ -31,6 +31,7 @@ export type CommandPayload =
       participantId: string;
     }
   | { type: 'send-note'; id: string; note: PaperNote }
+  | { type: 'read-note'; id: string; noteId: string }
   | { type: 'handle-note'; id: string; noteId: string }
   | { type: 'pin-note'; id: string; noteId: string; pinned: boolean }
   | { type: 'send-chat'; id: string; message: ChatMessage }

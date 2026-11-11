@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Mic, MicOff, Video, VideoOff } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Modal } from '@/components/ui/modal';
+import { personalCode } from '@/lib/mjd-access';
 import { backgroundOf, sessionLink } from '@/lib/utils';
 import type { Participant, Session } from '@/types/fgd';
 import { useFgdStore } from '@/stores/fgd-store';
@@ -201,7 +202,11 @@ export function ParticipantStrip({
                   ) : (
                     <span>正在生成入场码…</span>
                   )}
-                  <small>个人入场二维码</small>
+                  <small>
+                    个人数字码
+                    <br />
+                    <strong>{personalCode(session, person)}</strong>
+                  </small>
                 </div>
               )}
               {!readonly && session.delivery === 'online' && session.phase !== 'ended' && (

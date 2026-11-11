@@ -18,6 +18,7 @@ import { backgroundOf, uid } from '@/lib/utils';
 import type { Participant, Session } from '@/types/fgd';
 import { Empty, Notice, colors } from './shared';
 import styles from './entry.module.css';
+import { personalCode } from '@/lib/mjd-access';
 import { VoiceRecorder } from './VoiceRecorder';
 interface PersonDraft {
   name: string;
@@ -251,7 +252,23 @@ export default function RosterEditor({
                       <span className={styles.personAvatar} style={{ background: p.color }}>
                         {p.name[0]}
                       </span>
-                      <strong>{p.name}</strong>
+                      <div>
+                        <strong>{p.name}</strong>
+                        {session.delivery === 'offline' && (
+                          <small style={{ display: 'block', marginTop: 4 }}>
+                            数字码{' '}
+                            <button
+                              title="复制个人数字码"
+                              onClick={() => {
+                                void navigator.clipboard.writeText(personalCode(session, p));
+                                onMessage('个人数字码已复制');
+                              }}
+                            >
+                              {personalCode(session, p)}
+                            </button>
+                          </small>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td>
@@ -323,6 +340,7 @@ export default function RosterEditor({
         </div>
       </section>
       <VoiceRecorder
+        sessionId={session.id}
         target={
           recordingPerson
             ? {

@@ -197,6 +197,9 @@ export const useFgdStore = create<Store>((set, get) => {
     pinNote(id, noteId, pinned) {
       safeCommit({ type: 'pin-note', id, noteId, pinned });
     },
+    readNote(id, noteId) {
+      safeCommit({ type: 'read-note', id, noteId });
+    },
     handleNote(id, noteId) {
       safeCommit({ type: 'handle-note', id, noteId });
     },

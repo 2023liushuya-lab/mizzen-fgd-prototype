@@ -1,18 +1,23 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Check, Mic, RotateCcw, Square } from 'lucide-react';
+import { useFgdStore } from '@/stores/fgd-store';
+import { voiceScript } from '@/lib/mjd-access';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import styles from './entry.module.css';
 export function VoiceRecorder({
   target,
+  sessionId,
   onClose,
   onSave,
 }: {
+  sessionId: string;
   target: { id: string; name: string } | null;
   onClose: () => void;
   onSave: (id: string) => void;
 }) {
+  const update = useFgdStore((s) => s.updateSession);
   const [stage, setStage] = useState<'idle' | 'recording' | 'ready'>('idle');
   const [seconds, setSeconds] = useState(0);
   useEffect(() => {
@@ -34,6 +39,13 @@ export function VoiceRecorder({
     );
     return () => clearInterval(timer);
   }, [stage]);
+  useEffect(() => {
+    if (target) update(sessionId, { voiceRecording: { participantId: target.id, stage, seconds } });
+  }, [sessionId, target?.id, stage, seconds, update]);
+  function close() {
+    update(sessionId, { voiceRecording: null });
+    onClose();
+  }
   function start() {
     setSeconds(0);
     setStage('recording');
@@ -41,7 +53,7 @@ export function VoiceRecorder({
   return (
     <Modal
       open={!!target}
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={(open) => !open && close()}
       title={`录制${target?.name || ''}声纹`}
     >
       <div className={styles.voiceRecorder}>
@@ -56,9 +68,7 @@ export function VoiceRecorder({
               : '准备录制声纹'}
         </h3>
         <p className="muted">保持安静，按平时说话的音量朗读。</p>
-        <blockquote>
-          大家好，我是{target?.name}。很高兴参与今天的讨论，我会分享自己的真实想法和使用感受。
-        </blockquote>
+        <blockquote>{voiceScript(target?.name || '受访者')}</blockquote>
         <div
           className={`${styles.voiceBars} ${stage === 'recording' ? styles.voiceBarsActive : ''}`}
           aria-hidden
@@ -91,7 +101,12 @@ export function VoiceRecorder({
                 <RotateCcw size={14} />
                 重新录制
               </Button>
-              <Button onClick={() => target && onSave(target.id)}>
+              <Button
+                onClick={() => {
+                  update(sessionId, { voiceRecording: null });
+                  if (target) onSave(target.id);
+                }}
+              >
                 <Check size={15} />
                 保存声纹
               </Button>

@@ -22,6 +22,10 @@ import {
 } from 'lucide-react';
 import type { Session } from '@/types/fgd';
 import { copyText, formatTime, sessionLink } from '@/lib/utils';
+import { MjdInbox } from './MjdInbox';
+import { SessionEntryQr } from '@/features/entry/SessionEntryQr';
+import { VoiceRecorder } from '@/features/entry/VoiceRecorder';
+import { personalCode } from '@/lib/mjd-access';
 import { raisedPeople } from './HandQueue';
 import { useFgdStore } from '@/stores/fgd-store';
 import styles from './WorkspaceHeader.module.css';
@@ -43,6 +47,8 @@ export function WorkspaceHeader({
   onEnd: () => void;
   onTranslationChange?: (enabled: boolean) => void;
 }) {
+  const update = useFgdStore((s) => s.updateSession);
+  const [voiceTarget, setVoiceTarget] = useState<{ id: string; name: string } | null>(null);
   const [translated, setTranslated] = useState(false);
   useEffect(() => onTranslationChange?.(translated), [translated, onTranslationChange]);
   const [info, setInfo] = useState(false);
@@ -107,11 +113,18 @@ export function WorkspaceHeader({
             <div className={styles.meetingInfo}>
               <strong>{sessionTitle}</strong>
               <div>
-                <small>房间码</small>
+                <small>访谈方式</small>
+                <span>
+                  {session.delivery === 'offline' ? '线下' : '线上'} ·{' '}
+                  {session.testMode === 'blind' ? '盲测' : '普通测试'}
+                </span>
+              </div>
+              <div>
+                <small>场次码</small>
                 <span>{session.roomCode}</span>
                 <button
                   className="icon-button"
-                  aria-label="复制房间码"
+                  aria-label="复制场次码"
                   onClick={() => copy(session.roomCode, 'code')}
                 >
                   {copied === 'code' ? <Check size={15} /> : <Copy size={15} />}
@@ -153,9 +166,43 @@ export function WorkspaceHeader({
                 <small>当前状态</small>
                 <span className={styles.phaseTag}>{phase}</span>
               </div>
-              {copied && !['code', 'link', 'observer'].includes(copied) && (
-                <small role="status">{copied}</small>
+              {role === 'host' && session.delivery === 'offline' && (
+                <SessionEntryQr session={session} />
               )}
+              {role === 'host' && session.delivery === 'offline' && (
+                <details>
+                  <summary style={{ fontSize: 12, cursor: 'pointer' }}>受访者数字码与声纹</summary>
+                  {session.participants
+                    .filter((p) => !p.removed)
+                    .map((p) => (
+                      <div
+                        key={p.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          marginTop: 8,
+                          fontSize: 12,
+                        }}
+                      >
+                        <span>{p.name}</span>
+                        <button
+                          className="ui-button button-outline button-small"
+                          onClick={() => copy(personalCode(session, p), p.id)}
+                        >
+                          {copied === p.id ? '已复制' : personalCode(session, p)}
+                        </button>
+                        <button
+                          className="ui-button button-outline button-small"
+                          onClick={() => setVoiceTarget({ id: p.id, name: p.name })}
+                        >
+                          录制声纹
+                        </button>
+                      </div>
+                    ))}
+                </details>
+              )}
+              {copied === '复制失败，请手动复制' && <small role="status">{copied}</small>}
             </div>
           )}
         </div>
@@ -231,6 +278,7 @@ export function WorkspaceHeader({
           </>
         )}
         <div className={styles.headerActions}>
+          {role === 'host' && <MjdInbox session={session} />}
           {role === 'host' && (
             <>
               <button
@@ -253,6 +301,19 @@ export function WorkspaceHeader({
           )}
         </div>
       </div>
+      <VoiceRecorder
+        sessionId={session.id}
+        target={voiceTarget}
+        onClose={() => setVoiceTarget(null)}
+        onSave={(id) => {
+          update(session.id, {
+            participants: session.participants.map((p) =>
+              p.id === id ? { ...p, voiceEnabled: true } : p,
+            ),
+          });
+          setVoiceTarget(null);
+        }}
+      />
     </header>
   );
 }

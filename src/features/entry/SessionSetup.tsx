@@ -20,6 +20,7 @@ import type { Participant, Project, Session } from '@/types/fgd';
 import { Notice, LinkField, projectUrl, outlineUrl, phaseName } from './shared';
 import RosterEditor from './RosterEditor';
 import SeatSetup from './SeatSetup';
+import { SessionEntryQr } from './SessionEntryQr';
 import styles from './entry.module.css';
 export default function Setup({ project, session }: { project: Project; session: Session }) {
   const router = useRouter();
@@ -30,7 +31,10 @@ export default function Setup({ project, session }: { project: Project; session:
   const people = session.participants.filter((p) => !p.removed);
   const pending = session.phase === 'pending';
   function patch(p: Partial<Session>) {
-    update(session.id, p);
+    update(
+      session.id,
+      p.delivery === 'offline' && session.testMode === undefined ? { ...p, testMode: 'blind' } : p,
+    );
   }
   function enterHost() {
     if (session.phase === 'pending') {
@@ -132,6 +136,11 @@ export default function Setup({ project, session }: { project: Project; session:
             </div>
           </div>
         </section>
+        {session.delivery === 'offline' && (
+          <section className={styles.setupCard}>
+            <SessionEntryQr session={session} />
+          </section>
+        )}
         <div className={`${styles.setupColumns} ${styles.setupSingle}`}>
           <div className={styles.setupLeft}>
             <section className={styles.setupCard}>

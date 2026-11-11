@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Play } from 'lucide-react';
+import { Play, MonitorUp, Clock } from 'lucide-react';
+import { useClock } from '@/hooks/use-clock';
 import { Button } from '@/components/ui/button';
 import type { Participant, Question, Role, Session } from '@/types/fgd';
 import { ConceptCanvas } from './ConceptCanvas';
@@ -18,6 +19,7 @@ export interface QuestionWorkspaceProps {
   role: Role;
   onStart?: () => void;
   onPriorAnswers?: () => void;
+  onScreen?: () => void;
   onPlayback?: (seconds: number, playing: boolean) => void;
 }
 
@@ -27,6 +29,7 @@ export function QuestionWorkspace({
   role,
   onStart,
   onPriorAnswers,
+  onScreen,
   onPlayback,
 }: QuestionWorkspaceProps) {
   const [profile, setProfile] = useState<Participant | null>(null);
@@ -46,6 +49,16 @@ export function QuestionWorkspace({
         ? Math.max(0, now - run.stimulusUpdatedAt) / 1000
         : 0),
   );
+  const clock = useClock();
+  const elapsed =
+    run?.segments.reduce(
+      (sum, seg) => sum + Math.max(0, (seg.endedAt || clock) - seg.startedAt),
+      0,
+    ) || 0;
+  const overtime =
+    session.phase === 'live' &&
+    session.currentQuestionId === question.id &&
+    elapsed > question.plannedMinutes * 60_000;
   const started = Boolean(run);
   const index = session.questions.findIndex((q) => q.id === question.id) + 1;
   const isStatement = question.type === '陈述题';
@@ -72,11 +85,34 @@ export function QuestionWorkspace({
                   开始题目
                 </Button>
               ) : (
-                onPriorAnswers && (
-                  <Button size="sm" variant="outline" onClick={onPriorAnswers}>
-                    投放前题答案
-                  </Button>
-                )
+                <>
+                  {onScreen && (
+                    <Button size="sm" variant="outline" onClick={onScreen}>
+                      <MonitorUp size={14} />
+                      投放大屏
+                    </Button>
+                  )}
+                  {question.type === '标注题' && onPriorAnswers && (
+                    <Button size="sm" variant="ghost" onClick={onPriorAnswers}>
+                      投放前题答案
+                    </Button>
+                  )}
+                </>
+              )}
+              {overtime && (
+                <span
+                  style={{
+                    color: '#b07c2e',
+                    display: 'inline-flex',
+                    gap: 4,
+                    alignItems: 'center',
+                    fontSize: 11,
+                  }}
+                  role="status"
+                >
+                  <Clock size={13} />
+                  已超时
+                </span>
               )}
             </div>
           )}

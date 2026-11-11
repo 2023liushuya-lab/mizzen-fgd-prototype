@@ -29,6 +29,7 @@ function sampleSession(delivery: 'online' | 'offline'): Session {
     projectId: 'project-1',
     title: `${delivery === 'online' ? '线上' : '线下'} · 护肤产品体验讨论`,
     delivery,
+    testMode: delivery === 'offline' ? 'blind' : 'regular',
     roomCode: delivery === 'online' ? '944803' : '944804',
     observerToken: `demo-${delivery}-observer-20261109`,
     phase: 'pending',

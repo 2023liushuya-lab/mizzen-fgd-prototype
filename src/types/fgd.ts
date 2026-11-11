@@ -111,6 +111,7 @@ export interface PaperNote {
   createdAt: number;
   status: 'pending' | 'handled' | 'failed';
   pinned?: boolean;
+  readAt?: number;
   attempts: number;
 }
 export interface ChatMessage {
@@ -160,6 +161,12 @@ export interface Session {
   mediaRequests: MediaRequest[];
   startedAt?: number;
   endedAt?: number;
+  voiceRecording?: {
+    participantId: string;
+    stage: 'idle' | 'recording' | 'ready';
+    seconds: number;
+  } | null;
+  screenQuestionId?: string | null;
   hostVoiceEnabled?: boolean;
   hostMic?: boolean;
   hostCamera?: boolean;
@@ -216,6 +223,7 @@ export interface FgdActions {
     retryId?: string,
   ) => NoteResult;
   handleNote: (id: string, noteId: string) => void;
+  readNote: (id: string, noteId: string) => void;
   pinNote: (id: string, noteId: string, pinned: boolean) => void;
   sendChat: (id: string, senderId: string, name: string, text: string, reaction?: boolean) => void;
   requestMedia: (

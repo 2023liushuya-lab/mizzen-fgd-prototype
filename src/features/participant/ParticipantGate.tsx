@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import type { Session } from '@/types/fgd';
 import styles from './participant.module.css';
+import { identifyByCode } from '@/lib/mjd-access';
 import { DeviceCheck } from './DeviceCheck';
 export function ParticipantGate({
   session,
@@ -15,9 +16,7 @@ export function ParticipantGate({
   personalId: string | null;
   onJoin: (id: string) => void;
 }) {
-  const [stage, setStage] = useState<'code' | 'identity' | 'consent'>(
-    session.delivery === 'offline' && personalId ? 'consent' : 'code',
-  );
+  const [stage, setStage] = useState<'code' | 'identity' | 'consent'>('code');
   const [code, setCode] = useState(''),
     [selected, setSelected] = useState(personalId || ''),
     [consent, setConsent] = useState(false),
@@ -52,7 +51,8 @@ export function ParticipantGate({
       setReplace(true);
       return;
     }
-    setDevices(true);
+    if (session.delivery === 'offline') onJoin(person.id);
+    else setDevices(true);
   }
   if (devices && person)
     return (
@@ -76,21 +76,36 @@ export function ParticipantGate({
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              if (session.delivery === 'offline') {
+                const match = identifyByCode(session, code);
+                if (!match || (personalId && match.id !== personalId)) {
+                  setError('个人数字码不正确，请核对后重试。');
+                  return;
+                }
+                setSelected(match.id);
+                setError('');
+                setStage('consent');
+                return;
+              }
               if (code.replace(/\s/g, '') === session.roomCode) {
                 setError('');
                 setStage('identity');
               } else setError('房间码不正确，请核对后重试。');
             }}
           >
-            <p className="muted">请输入研究人员提供的房间码。</p>
+            <p className="muted">
+              {session.delivery === 'offline'
+                ? '请输入你的个人数字码，系统将自动识别身份。'
+                : '请输入研究人员提供的房间码。'}
+            </p>
             <input
               className={styles.roomCode}
-              aria-label="房间码"
+              aria-label={session.delivery === 'offline' ? '个人数字码' : '房间码'}
               inputMode="numeric"
               autoComplete="off"
               maxLength={6}
               value={code}
-              placeholder="房间码"
+              placeholder={session.delivery === 'offline' ? '个人数字码' : '房间码'}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
               autoFocus
             />
@@ -139,7 +154,13 @@ export function ParticipantGate({
                 {person?.name[0]}
               </span>
               <strong>{person?.name}</strong>
-              {!personalId && <button onClick={() => setStage('identity')}>更换</button>}
+              {!personalId && (
+                <button
+                  onClick={() => setStage(session.delivery === 'offline' ? 'code' : 'identity')}
+                >
+                  更换
+                </button>
+              )}
             </div>
             <div className={styles.consentCopy}>
               <ShieldCheck size={20} />
@@ -159,9 +180,11 @@ export function ParticipantGate({
               我已阅读并同意参与本次研究与录制
             </label>
             <div className={styles.joinActions}>
-              <Button variant="outline" disabled={!consent || !person} onClick={() => enter()}>
-                检测设备
-              </Button>
+              {session.delivery === 'online' && (
+                <Button variant="outline" disabled={!consent || !person} onClick={() => enter()}>
+                  检测设备
+                </Button>
+              )}
               <Button disabled={!consent || !person} onClick={enter}>
                 加入访谈
                 <ArrowRight size={16} />
@@ -172,7 +195,9 @@ export function ParticipantGate({
         {stage !== 'code' && !personalId && (
           <button
             className={styles.back}
-            onClick={() => setStage(stage === 'consent' ? 'identity' : 'code')}
+            onClick={() =>
+              setStage(stage === 'consent' && session.delivery === 'online' ? 'identity' : 'code')
+            }
           >
             <ArrowLeft size={13} />
             返回
@@ -190,7 +215,7 @@ export function ParticipantGate({
           <Button
             onClick={() => {
               setReplace(false);
-              setDevices(true);
+              session.delivery === 'offline' && person ? onJoin(person.id) : setDevices(true);
             }}
           >
             替换并加入

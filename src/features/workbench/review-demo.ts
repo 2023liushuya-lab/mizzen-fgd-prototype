@@ -13,6 +13,7 @@ export function createReviewDemo(delivery: Delivery, projectId?: string) {
     demoScenario: 'full-answers',
     title: `演示 · ${delivery === 'offline' ? '线下' : '线上'} · 全题作答与总结`,
     delivery,
+    testMode: delivery === 'offline' ? 'blind' : 'regular',
     hostVoiceEnabled: true,
     questions: structuredClone(questions),
     sections: structuredClone(sections),

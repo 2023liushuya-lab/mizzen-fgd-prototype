@@ -236,6 +236,13 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
               question={question}
               role={role}
               onStart={startQuestion}
+              onScreen={() => {
+                useFgdStore.getState().updateSession(session.id, { screenQuestionId: question.id });
+                window.open(
+                  `/screen?project=${session.projectId}&session=${session.id}`,
+                  'fgd-screen',
+                );
+              }}
               onPriorAnswers={() => setPriorModal(true)}
               onPlayback={(seconds, playing) => playback(session.id, question.id, seconds, playing)}
             />
@@ -244,6 +251,18 @@ export default function WorkbenchPage({ role }: { role: 'host' | 'observer' }) {
               <h2>等待主持人开始题目</h2>
               <p>可在左侧大纲提前浏览本场全部题目，或在右侧向主持人递小纸条。</p>
             </div>
+          )}
+          {!readonly && directions.length > 0 && (
+            <section
+              data-ai-detail
+              className={styles.topicDirections}
+              style={{ position: 'static', marginTop: 18 }}
+            >
+              <h3>话题追问</h3>
+              {directions.map((t) => (
+                <p key={t}>{t}</p>
+              ))}
+            </section>
           )}
         </main>
         <WorkbenchSidePanel
